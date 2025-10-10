@@ -1,364 +1,426 @@
-# Plataforma de Acceso Remoto Seguro
+# Kolaboree NG (Next Generation)
 
-## Descripción
+<div align="center">
 
-La **Plataforma de Acceso Remoto Seguro** es una solución integral de código abierto diseñada para proporcionar acceso seguro y centralizado a infraestructura híbrida (on-premise y en la nube). La plataforma combina múltiples tecnologías de vanguardia para ofrecer autenticación robusta, gestión de acceso remoto y conectividad de red de confianza cero (Zero Trust).
+**Multi-Cloud Management and Workspace Access Platform**
 
-Esta solución está diseñada para organizaciones que necesitan:
-- 🔐 **Gestión centralizada de identidades y acceso (IAM/SSO)**
-- 🖥️ **Acceso remoto seguro a servidores mediante RDP y SSH desde un navegador web**
-- 🌐 **Redes de confianza cero (Zero Trust) para comunicaciones seguras**
-- 📊 **Portal web centralizado para gestión de recursos**
+A modern, full-stack platform for managing multi-cloud infrastructure and providing secure workspace access through the browser.
 
-## Stack Tecnológico
+[![Docker](https://img.shields.io/badge/Docker-Compose-blue)](https://docs.docker.com/compose/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.104-green)](https://fastapi.tiangolo.com/)
+[![React](https://img.shields.io/badge/React-18.2-blue)](https://reactjs.org/)
+[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-La plataforma está construida utilizando las siguientes tecnologías de código abierto:
-
-| Componente | Tecnología | Propósito |
-|------------|-----------|-----------|
-| **Identidad y Acceso (IAM/SSO)** | [Authentik](https://goauthentik.io/) | Gestión de identidades, autenticación y autorización con soporte SSO |
-| **Gateway de Acceso Remoto** | [Apache Guacamole](https://guacamole.apache.org/) | Acceso a RDP/SSH/VNC mediante HTML5 sin cliente |
-| **Red Segura (Zero Trust)** | [OpenZiti](https://openziti.io/) | Red de confianza cero para conectividad segura |
-| **Base de Datos** | [PostgreSQL](https://www.postgresql.org/) | Base de datos relacional para persistencia |
-| **Caché/Cola de Mensajes** | [Redis](https://redis.io/) | Caché en memoria y sistema de mensajería |
-| **Portal Web** | Nginx | Frontend del portal (placeholder) |
-| **API Gateway** | Node.js | Backend de la API (placeholder) |
-| **Orquestación** | [Docker Swarm](https://docs.docker.com/engine/swarm/) | Orquestación de contenedores |
-
-## Prerrequisitos
-
-Antes de desplegar la plataforma, asegúrate de tener:
-
-### Sistema Operativo
-- **Ubuntu 22.04 LTS** o superior (recomendado)
-- Otras distribuciones Linux compatibles con Docker
-
-### Software Requerido
-- **Docker Engine** versión 20.10 o superior
-- **Docker Compose** (opcional, para validación)
-- Al menos **4GB de RAM** disponible
-- Al menos **20GB de espacio libre en disco**
-
-### Permisos
-- Acceso con privilegios de superusuario (sudo) para inicializar Docker Swarm
-
-### Puertos Requeridos
-Los siguientes puertos deben estar disponibles en el host:
-- `80` - Portal Web
-- `3000` - API Gateway
-- `8080` - Apache Guacamole
-- `9000` - Authentik (HTTP)
-- `9443` - Authentik (HTTPS)
-- `1280` - OpenZiti Edge API
-- `6262` - OpenZiti Controller
-
-## Guía de Inicio Rápido
-
-Sigue estos pasos para desplegar la plataforma:
-
-### 1. Clonar el Repositorio
-
-```bash
-git clone https://github.com/infra-neo/local_server_poc.git
-cd local_server_poc
-```
-
-### 2. Configurar Variables de Entorno
-
-Copia el archivo de ejemplo `.env.example` a `.env`:
-
-```bash
-cp .env.example .env
-```
-
-Edita el archivo `.env` con tus valores seguros:
-
-```bash
-nano .env
-```
-
-**⚠️ IMPORTANTE:** Cambia todas las contraseñas y claves secretas por valores seguros antes de desplegar en producción.
-
-### 3. Ejecutar Auditoría del Sistema
-
-Verifica que tu sistema cumple con todos los prerrequisitos:
-
-```bash
-bash scripts/audit.sh
-```
-
-Este script verificará:
-- Instalación de Docker
-- Disponibilidad de puertos
-- Recursos del sistema
-- Configuración del archivo `.env`
-
-### 4. Desplegar la Plataforma
-
-Ejecuta el script de despliegue:
-
-```bash
-bash scripts/deploy.sh
-```
-
-Este script:
-- Inicializa Docker Swarm (si no está activo)
-- Despliega todos los servicios
-- Muestra las URLs de acceso a cada componente
-
-### 5. Acceder a los Servicios
-
-Una vez desplegado, podrás acceder a:
-
-- **Portal Web:** http://localhost
-- **API Gateway:** http://localhost:3000
-- **Apache Guacamole:** http://localhost:8080/guacamole
-- **Authentik:** http://localhost:9000 o https://localhost:9443
-- **OpenZiti Edge API:** https://localhost:1280
-
-## Configuración
-
-### Variables de Entorno (`.env`)
-
-El archivo `.env` contiene todas las configuraciones necesarias para la plataforma:
-
-#### Configuración General
-- `STACK_NAME`: Nombre del stack de Docker Swarm (default: `secure-access-platform`)
-
-#### Base de Datos PostgreSQL
-- `POSTGRES_DB`: Nombre de la base de datos principal
-- `POSTGRES_USER`: Usuario de PostgreSQL
-- `POSTGRES_PASSWORD`: Contraseña de PostgreSQL (**¡Cámbiala!**)
-
-#### Redis
-- `REDIS_PASSWORD`: Contraseña de Redis (**¡Cámbiala!**)
-
-#### Authentik
-- `AUTHENTIK_SECRET_KEY`: Clave secreta para Authentik (**¡Cámbiala!**)
-- `AUTHENTIK_ERROR_REPORTING`: Habilitar/deshabilitar reporte de errores
-
-#### Apache Guacamole
-- `GUACD_HOSTNAME`: Hostname del daemon de Guacamole
-- `GUACAMOLE_DB`: Base de datos de Guacamole
-- `GUACAMOLE_USER`: Usuario de la base de datos de Guacamole
-- `GUACAMOLE_PASSWORD`: Contraseña de Guacamole (**¡Cámbiala!**)
-
-#### OpenZiti
-- `ZITI_CTRL_NAME`: Nombre del controlador Ziti
-- `ZITI_CTRL_PORT`: Puerto del controlador
-- `ZITI_EDGE_API_PORT`: Puerto de la API Edge
-
-#### Puertos (Opcionales)
-Puedes personalizar los puertos expuestos modificando estas variables:
-- `PORTAL_WEB_PORT` (default: 80)
-- `API_GATEWAY_PORT` (default: 3000)
-- `GUACAMOLE_PORT` (default: 8080)
-- `AUTHENTIK_PORT_HTTP` (default: 9000)
-- `AUTHENTIK_PORT_HTTPS` (default: 9443)
-- `ZITI_PORT_API` (default: 1280)
-- `ZITI_PORT_CTRL` (default: 6262)
-
-## Scripts Disponibles
-
-### `scripts/deploy.sh`
-
-**Propósito:** Despliega la plataforma completa en Docker Swarm.
-
-**Funcionalidad:**
-- Verifica la existencia del archivo `.env`
-- Carga las variables de entorno
-- Verifica que Docker está instalado y corriendo
-- Inicializa Docker Swarm si no está activo
-- Despliega el stack usando `docker stack deploy`
-- Muestra las URLs de acceso a todos los servicios
-
-**Uso:**
-```bash
-bash scripts/deploy.sh
-```
-
-### `scripts/teardown.sh`
-
-**Propósito:** Elimina el stack desplegado de forma segura.
-
-**Funcionalidad:**
-- Carga las variables de entorno del archivo `.env`
-- Elimina el stack de Docker Swarm
-- Preserva los volúmenes de datos por seguridad
-- Proporciona comandos (comentados) para limpieza completa
-
-**Uso:**
-```bash
-bash scripts/teardown.sh
-```
-
-**Nota:** Los volúmenes de datos persisten después del teardown para evitar pérdida de datos accidental. Si deseas eliminarlos, sigue las instrucciones que muestra el script.
-
-### `scripts/audit.sh`
-
-**Propósito:** Verifica los prerrequisitos y la configuración antes del despliegue.
-
-**Funcionalidad:**
-- Verifica la instalación de Docker
-- Comprueba que Docker está corriendo
-- Valida la existencia y configuración del archivo `.env`
-- Verifica la disponibilidad de los puertos requeridos
-- Comprueba los recursos del sistema (RAM y espacio en disco)
-- Detecta contraseñas por defecto y emite advertencias de seguridad
-
-**Uso:**
-```bash
-bash scripts/audit.sh
-```
-
-## Comandos Útiles
-
-### Verificar el Estado de los Servicios
-
-```bash
-docker stack services secure-access-platform
-```
-
-### Ver Logs de un Servicio
-
-```bash
-docker service logs secure-access-platform_<nombre-servicio>
-```
-
-Ejemplos:
-```bash
-docker service logs secure-access-platform_authentik-server
-docker service logs secure-access-platform_guacamole-client
-```
-
-### Escalar un Servicio
-
-```bash
-docker service scale secure-access-platform_api-gateway=3
-```
-
-### Listar Volúmenes
-
-```bash
-docker volume ls | grep secure-access-platform
-```
-
-## Arquitectura
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                     Docker Swarm Cluster                    │
-│                                                             │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐    │
-│  │  Portal Web  │  │ API Gateway  │  │  Authentik   │    │
-│  │   (Nginx)    │  │   (Node.js)  │  │    (IAM)     │    │
-│  └──────────────┘  └──────────────┘  └──────────────┘    │
-│                                                             │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐    │
-│  │  Guacamole   │  │  OpenZiti    │  │  PostgreSQL  │    │
-│  │  (Gateway)   │  │ (Zero Trust) │  │  (Database)  │    │
-│  └──────────────┘  └──────────────┘  └──────────────┘    │
-│                                                             │
-│  ┌──────────────┐                                          │
-│  │    Redis     │                                          │
-│  │   (Cache)    │                                          │
-│  └──────────────┘                                          │
-│                                                             │
-│                    Red Overlay: stack-net                  │
-└─────────────────────────────────────────────────────────────┘
-```
-
-## Seguridad
-
-### Mejores Prácticas
-
-1. **Cambia todas las contraseñas por defecto** en el archivo `.env`
-2. **Usa contraseñas fuertes** de al menos 32 caracteres para servicios críticos
-3. **No subas el archivo `.env` al repositorio** (está en `.gitignore`)
-4. **Configura HTTPS** para todos los servicios expuestos públicamente
-5. **Implementa firewall** para restringir el acceso a puertos sensibles
-6. **Actualiza regularmente** las imágenes de Docker para obtener parches de seguridad
-
-### Generación de Contraseñas Seguras
-
-Puedes generar contraseñas seguras usando:
-
-```bash
-# Contraseña de 32 caracteres
-openssl rand -base64 32
-
-# Contraseña de 64 caracteres
-openssl rand -base64 64
-```
-
-## Mantenimiento
-
-### Actualizar Imágenes
-
-```bash
-docker service update --image <nueva-imagen> secure-access-platform_<servicio>
-```
-
-### Backup de Datos
-
-Los datos persisten en volúmenes de Docker. Para hacer backup:
-
-```bash
-# Ejemplo: Backup de PostgreSQL
-docker run --rm \
-  --volumes-from secure-access-platform_postgres.1.xxxx \
-  -v $(pwd):/backup \
-  ubuntu tar czf /backup/postgres_backup.tar.gz /var/lib/postgresql/data
-```
-
-### Restore de Datos
-
-```bash
-# Ejemplo: Restore de PostgreSQL
-docker run --rm \
-  --volumes-from secure-access-platform_postgres.1.xxxx \
-  -v $(pwd):/backup \
-  ubuntu tar xzf /backup/postgres_backup.tar.gz -C /
-```
-
-## Solución de Problemas
-
-### Los servicios no inician
-
-1. Verifica los logs: `docker service logs <servicio>`
-2. Comprueba el estado: `docker stack services secure-access-platform`
-3. Verifica que los puertos no estén en uso: `bash scripts/audit.sh`
-
-### No puedo acceder a un servicio
-
-1. Verifica que el servicio está corriendo: `docker stack services secure-access-platform`
-2. Comprueba el firewall del host
-3. Verifica que el puerto está correctamente mapeado
-
-### Problemas de rendimiento
-
-1. Verifica los recursos del sistema: `docker stats`
-2. Escala los servicios según necesidad
-3. Revisa los logs en busca de errores
-
-## Contribuir
-
-Las contribuciones son bienvenidas. Por favor:
-
-1. Haz fork del repositorio
-2. Crea una rama para tu feature (`git checkout -b feature/AmazingFeature`)
-3. Commit tus cambios (`git commit -m 'Add some AmazingFeature'`)
-4. Push a la rama (`git push origin feature/AmazingFeature`)
-5. Abre un Pull Request
-
-## Licencia
-
-Este proyecto es de código abierto y está disponible bajo la licencia que determines.
-
-## Soporte
-
-Para reportar problemas o solicitar nuevas características, por favor abre un issue en el repositorio de GitHub.
+</div>
 
 ---
 
-**Desarrollado con ❤️ para facilitar el acceso remoto seguro**
+## 📋 Table of Contents
+
+- [Overview](#-overview)
+- [Features](#-features)
+- [Architecture](#-architecture)
+- [Technology Stack](#-technology-stack)
+- [Quick Start](#-quick-start)
+- [Configuration](#-configuration)
+- [Cloud Providers](#-cloud-providers)
+- [Usage Guide](#-usage-guide)
+- [Development](#-development)
+- [Troubleshooting](#-troubleshooting)
+- [Contributing](#-contributing)
+
+---
+
+## 🌟 Overview
+
+**Kolaboree NG** is a comprehensive platform that combines:
+
+1. **Multi-Cloud Infrastructure Management** (like Mist.io): A unified admin panel to connect, visualize, and manage multiple cloud providers and virtualization platforms
+2. **Secure Workspace Access** (like Kasm): A user portal to access virtual machines and applications through HTML5 browser connections
+3. **Robust Identity Architecture**: Centralized IAM with well-defined roles using Authentik and OpenLDAP
+
+## ✨ Features
+
+### Admin Dashboard
+- 🌐 **Multi-Cloud Connectivity**: Connect to GCP, LXD, AWS, Azure, DigitalOcean, Vultr, Alibaba Cloud, Oracle Cloud, and Huawei Cloud
+- 📊 **Unified Dashboard**: Manage all cloud resources from a single interface
+- 🔧 **Visual Configuration**: Modern wizard-based connector setup
+- 🖱️ **Drag & Drop UI**: Prepare for advanced permission assignment (UI ready with React DnD)
+- 📈 **Real-time Monitoring**: View instance status across all clouds
+
+### User Dashboard
+- 💻 **Workspace Access**: Clean interface to access assigned VMs and containers
+- 🎯 **One-Click Connect**: Direct browser-based access to workspaces
+- 📱 **Responsive Design**: Works seamlessly on desktop and mobile
+- 🔄 **Live Status**: Real-time online/offline status of workspaces
+
+### Identity & Access Management
+- 🔐 **Authentik Integration**: Enterprise-grade SSO and authentication
+- 📁 **OpenLDAP Directory**: Centralized user and group management
+- 👥 **Role-Based Access**: Admin and user roles with appropriate permissions
+- 🔒 **Secure by Default**: All services protected by authentication
+
+## 🏗️ Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    Kolaboree NG Platform                        │
+│                                                                 │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐        │
+│  │   Frontend   │  │   Backend    │  │  Authentik   │        │
+│  │   (React)    │  │  (FastAPI)   │  │    (IAM)     │        │
+│  │              │  │              │  │              │        │
+│  │  Material-UI │  │  Libcloud    │  │   OpenLDAP   │        │
+│  │  Framer      │  │  Multi-Cloud │  │  Integration │        │
+│  │  React DnD   │  │  Manager     │  │              │        │
+│  └──────────────┘  └──────────────┘  └──────────────┘        │
+│         │                  │                   │               │
+│         └──────────────────┴───────────────────┘               │
+│                            │                                    │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐        │
+│  │    Nginx     │  │  PostgreSQL  │  │    Redis     │        │
+│  │    Proxy     │  │   Database   │  │    Cache     │        │
+│  └──────────────┘  └──────────────┘  └──────────────┘        │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+           │                     │                     │
+           ▼                     ▼                     ▼
+    ┌──────────┐         ┌──────────┐         ┌──────────┐
+    │   GCP    │         │   LXD    │         │  Others  │
+    └──────────┘         └──────────┘         └──────────┘
+```
+
+## 🛠️ Technology Stack
+
+### Backend
+- **Framework**: FastAPI (Python 3.11)
+- **Cloud Integration**: Apache Libcloud 3.8.0
+- **Container Management**: PyLXD 2.3.1
+- **Database ORM**: Pydantic 2.4.2
+- **Web Server**: Uvicorn
+
+### Frontend
+- **Framework**: React 18.2
+- **UI Library**: Material-UI (MUI) 5.14
+- **Animations**: Framer Motion 10.16
+- **Drag & Drop**: React DnD 16.0
+- **HTTP Client**: Axios 1.6
+- **Build Tool**: Create React App
+
+### Infrastructure
+- **Identity Provider**: Authentik (latest)
+- **Directory Service**: OpenLDAP (Bitnami)
+- **Database**: PostgreSQL 15 Alpine
+- **Cache**: Redis 7 Alpine
+- **Reverse Proxy**: Nginx Alpine
+- **Orchestration**: Docker Compose 3.8
+
+## 🚀 Quick Start
+
+### Prerequisites
+
+- **Docker Engine** 20.10+ and **Docker Compose** 2.0+
+- At least **4GB RAM** available
+- At least **10GB disk space**
+
+### Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/infra-neo/local_server_poc.git
+   cd local_server_poc
+   ```
+
+2. **Configure environment variables**
+   ```bash
+   cp .env.example .env
+   nano .env  # Edit with your secure passwords
+   ```
+   
+   ⚠️ **IMPORTANT**: Change all default passwords and secrets!
+
+3. **Build and start the platform**
+   ```bash
+   docker-compose up -d
+   ```
+
+4. **Wait for services to be ready** (2-3 minutes)
+   ```bash
+   docker-compose ps  # Check status
+   docker-compose logs -f  # Watch logs
+   ```
+
+5. **Access the platform**
+   - **Main Application**: http://localhost:80
+   - **Backend API**: http://localhost:8000
+   - **API Documentation**: http://localhost:8000/docs
+   - **Authentik Admin**: http://localhost:9000
+
+### First-Time Setup
+
+1. **Configure Authentik**
+   - Access Authentik at http://localhost:9000
+   - Complete the initial setup wizard
+   - Create admin user
+
+2. **Configure OpenLDAP Connection in Authentik**
+   - Navigate to **Directory** → **Federation & Social Login** → **Sources**
+   - Add LDAP source:
+     - Server URI: `ldap://openldap:1389`
+     - Bind DN: `cn=admin,dc=kolaboree,dc=local`
+     - Bind Password: (from your .env file)
+     - Base DN: `dc=kolaboree,dc=local`
+
+3. **Access the Application**
+   - User Dashboard: Switch to "👤 User View" tab
+   - Admin Dashboard: Switch to "⚙️ Admin View" tab
+
+## ⚙️ Configuration
+
+### Environment Variables
+
+All configuration is managed through the `.env` file. Key variables:
+
+#### Database & Cache
+- `POSTGRES_DB`: PostgreSQL database name
+- `POSTGRES_USER`: PostgreSQL user
+- `POSTGRES_PASSWORD`: **Change this!**
+- `REDIS_PASSWORD`: **Change this!**
+
+#### LDAP Directory
+- `LDAP_ADMIN_USERNAME`: LDAP admin username (default: admin)
+- `LDAP_ADMIN_PASSWORD`: **Change this!**
+- `LDAP_ROOT`: LDAP base DN
+- `LDAP_PORT`: LDAP port (default: 389)
+
+#### Authentik IAM
+- `AUTHENTIK_SECRET_KEY`: **Must be 50+ characters!**
+- `AUTHENTIK_PORT_HTTP`: HTTP port (default: 9000)
+- `AUTHENTIK_PORT_HTTPS`: HTTPS port (default: 9443)
+
+#### Application Ports
+- `BACKEND_PORT`: FastAPI backend (default: 8000)
+- `FRONTEND_PORT`: React frontend (default: 3000)
+- `NGINX_PORT`: Main proxy (default: 80)
+
+## ☁️ Cloud Providers
+
+### Fully Functional Providers
+
+#### 🔵 Google Cloud Platform (GCP)
+- **Status**: ✅ 100% Functional
+- **Features**: List Compute Engine instances, view details
+- **Setup**: Provide service account JSON credentials
+- **Required**: Project ID, Service Account with Compute Engine permissions
+
+#### 📦 LXD / MicroCloud
+- **Status**: ✅ 100% Functional
+- **Features**: List containers and VMs, view status and IPs
+- **Setup**: Provide LXD endpoint and optional certificates
+- **Required**: LXD API endpoint (e.g., https://localhost:8443)
+
+### Placeholder Providers
+
+The following providers have placeholder implementations that return demo data:
+
+- 🟠 **AWS EC2**: Ready for implementation with Libcloud
+- 🔷 **Microsoft Azure**: Ready for implementation with Libcloud
+- 🌊 **DigitalOcean**: Ready for implementation with Libcloud
+- ⚡ **Vultr**: Ready for implementation with Libcloud
+- 🟠 **Alibaba Cloud**: Ready for implementation with Libcloud
+- 🔴 **Oracle Cloud**: Ready for implementation with Libcloud
+- 🔴 **Huawei Cloud**: Ready for implementation with Libcloud
+
+To make these functional, update the respective methods in `backend/app/core/cloud_manager.py`.
+
+## 📖 Usage Guide
+
+### Admin: Adding a Cloud Connection
+
+1. Navigate to the **Admin View** (⚙️ tab)
+2. Click **"Add Cloud Connection"**
+3. Follow the wizard:
+   - **Step 1**: Select your cloud provider
+   - **Step 2**: Enter connection name and credentials
+   - **Step 3**: Review and connect
+4. View the new connection card on your dashboard
+5. Click **"View Nodes"** to see instances/containers
+
+### Admin: Viewing Cloud Resources
+
+- Each cloud connection displays as a card
+- Cards show provider type, name, region, and status
+- Click "View Nodes" to see all VMs/containers for that connection
+- Real-time status updates from cloud providers
+
+### User: Accessing Workspaces
+
+1. Navigate to the **User View** (👤 tab)
+2. See all assigned workspaces
+3. Each card shows:
+   - Workspace name
+   - Online/Offline status
+   - Provider information
+   - Resource specifications
+4. Click **"Connect"** on online workspaces to access
+
+## 🔧 Development
+
+### Running in Development Mode
+
+#### Backend
+```bash
+cd backend
+pip install -r requirements.txt
+uvicorn app.main:app --reload --port 8000
+```
+
+Access API docs at http://localhost:8000/docs
+
+#### Frontend
+```bash
+cd frontend
+npm install
+npm start
+```
+
+Access frontend at http://localhost:3000
+
+### Project Structure
+
+```
+kolaboree-ng/
+├── backend/
+│   ├── app/
+│   │   ├── api/
+│   │   │   └── v1/
+│   │   │       ├── endpoints_admin.py    # Admin API
+│   │   │       └── endpoints_user.py     # User API
+│   │   ├── core/
+│   │   │   └── cloud_manager.py          # Libcloud integration
+│   │   ├── main.py                        # FastAPI app
+│   │   └── models.py                      # Pydantic models
+│   ├── Dockerfile
+│   └── requirements.txt
+├── frontend/
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── admin/
+│   │   │   │   ├── CloudProviderCard.js
+│   │   │   │   └── WizardConector.js
+│   │   │   └── user/
+│   │   │       └── WorkspaceCard.js
+│   │   ├── pages/
+│   │   │   ├── AdminDashboard.js
+│   │   │   └── UserDashboard.js
+│   │   ├── App.js
+│   │   └── index.js
+│   ├── Dockerfile
+│   └── package.json
+├── nginx/
+│   ├── nginx.conf
+│   └── conf.d/
+│       └── default.conf
+├── docker-compose.yml
+├── .env.example
+└── README.md
+```
+
+### API Endpoints
+
+#### Admin Endpoints
+- `POST /api/v1/admin/cloud_connections` - Create cloud connection
+- `GET /api/v1/admin/cloud_connections` - List all connections
+- `GET /api/v1/admin/cloud_connections/{id}` - Get connection details
+- `GET /api/v1/admin/cloud_connections/{id}/nodes` - List nodes
+- `DELETE /api/v1/admin/cloud_connections/{id}` - Delete connection
+
+#### User Endpoints
+- `GET /api/v1/user/my_workspaces` - Get user's workspaces
+
+## 🐛 Troubleshooting
+
+### Common Issues
+
+#### Services not starting
+```bash
+# Check logs
+docker-compose logs -f
+
+# Restart specific service
+docker-compose restart <service-name>
+
+# Rebuild and restart
+docker-compose up -d --build
+```
+
+#### Cannot connect to cloud provider
+- Verify credentials are correct
+- Check network connectivity
+- Review backend logs: `docker-compose logs backend`
+- For GCP: Ensure service account has proper permissions
+- For LXD: Verify endpoint is accessible
+
+#### Frontend can't reach backend
+- Verify `REACT_APP_API_URL` in frontend environment
+- Check nginx proxy configuration
+- Ensure backend is running: `docker-compose ps backend`
+
+#### Authentik configuration issues
+- Reset Authentik: `docker-compose down -v && docker-compose up -d`
+- Check Authentik logs: `docker-compose logs authentik-server`
+- Verify PostgreSQL connection
+
+### Logs & Debugging
+
+```bash
+# View all logs
+docker-compose logs -f
+
+# View specific service
+docker-compose logs -f backend
+docker-compose logs -f frontend
+docker-compose logs -f authentik-server
+
+# Check service health
+docker-compose ps
+
+# Restart all services
+docker-compose restart
+
+# Full reset (WARNING: deletes data)
+docker-compose down -v
+docker-compose up -d
+```
+
+## 🤝 Contributing
+
+Contributions are welcome! Please:
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## 📝 License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## 🙏 Acknowledgments
+
+- **Apache Libcloud**: Multi-cloud abstraction library
+- **Authentik**: Identity provider and SSO
+- **Material-UI**: React component library
+- **Framer Motion**: Animation library
+- **FastAPI**: Modern Python web framework
+
+---
+
+<div align="center">
+
+**Built with ❤️ for the cloud-native community**
+
+[Report Bug](https://github.com/infra-neo/local_server_poc/issues) · [Request Feature](https://github.com/infra-neo/local_server_poc/issues)
+
+</div>## Stack Tecnológico

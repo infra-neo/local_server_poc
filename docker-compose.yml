@@ -1,0 +1,179 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: kolaboree-postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-kolaboree}
+      POSTGRES_USER: ${POSTGRES_USER:-kolaboree}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-CHANGEME_SECURE_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - kolaboree-net
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-kolaboree}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: kolaboree-redis
+    command: redis-server --requirepass ${REDIS_PASSWORD:-CHANGEME_REDIS_PASSWORD}
+    volumes:
+      - redis_data:/data
+    networks:
+      - kolaboree-net
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # OpenLDAP Directory
+  openldap:
+    image: bitnami/openldap:latest
+    container_name: kolaboree-ldap
+    environment:
+      LDAP_ADMIN_USERNAME: ${LDAP_ADMIN_USERNAME:-admin}
+      LDAP_ADMIN_PASSWORD: ${LDAP_ADMIN_PASSWORD:-CHANGEME_LDAP_PASSWORD}
+      LDAP_ROOT: ${LDAP_ROOT:-dc=kolaboree,dc=local}
+      LDAP_ADMIN_DN: ${LDAP_ADMIN_DN:-cn=admin,dc=kolaboree,dc=local}
+    volumes:
+      - ldap_data:/bitnami/openldap
+    networks:
+      - kolaboree-net
+    restart: unless-stopped
+    ports:
+      - "${LDAP_PORT:-389}:1389"
+      - "${LDAPS_PORT:-636}:1636"
+
+  # Authentik Server
+  authentik-server:
+    image: ghcr.io/goauthentik/server:latest
+    container_name: kolaboree-authentik-server
+    command: server
+    environment:
+      AUTHENTIK_REDIS__HOST: redis
+      AUTHENTIK_REDIS__PASSWORD: ${REDIS_PASSWORD:-CHANGEME_REDIS_PASSWORD}
+      AUTHENTIK_POSTGRESQL__HOST: postgres
+      AUTHENTIK_POSTGRESQL__NAME: ${POSTGRES_DB:-kolaboree}
+      AUTHENTIK_POSTGRESQL__USER: ${POSTGRES_USER:-kolaboree}
+      AUTHENTIK_POSTGRESQL__PASSWORD: ${POSTGRES_PASSWORD:-CHANGEME_SECURE_PASSWORD}
+      AUTHENTIK_SECRET_KEY: ${AUTHENTIK_SECRET_KEY:-CHANGEME_AUTHENTIK_SECRET_KEY_MIN_50_CHARS}
+      AUTHENTIK_ERROR_REPORTING__ENABLED: ${AUTHENTIK_ERROR_REPORTING:-false}
+    ports:
+      - "${AUTHENTIK_PORT_HTTP:-9000}:9000"
+      - "${AUTHENTIK_PORT_HTTPS:-9443}:9443"
+    volumes:
+      - authentik_media:/media
+      - authentik_templates:/templates
+    networks:
+      - kolaboree-net
+    depends_on:
+      - postgres
+      - redis
+    restart: unless-stopped
+
+  # Authentik Worker
+  authentik-worker:
+    image: ghcr.io/goauthentik/server:latest
+    container_name: kolaboree-authentik-worker
+    command: worker
+    environment:
+      AUTHENTIK_REDIS__HOST: redis
+      AUTHENTIK_REDIS__PASSWORD: ${REDIS_PASSWORD:-CHANGEME_REDIS_PASSWORD}
+      AUTHENTIK_POSTGRESQL__HOST: postgres
+      AUTHENTIK_POSTGRESQL__NAME: ${POSTGRES_DB:-kolaboree}
+      AUTHENTIK_POSTGRESQL__USER: ${POSTGRES_USER:-kolaboree}
+      AUTHENTIK_POSTGRESQL__PASSWORD: ${POSTGRES_PASSWORD:-CHANGEME_SECURE_PASSWORD}
+      AUTHENTIK_SECRET_KEY: ${AUTHENTIK_SECRET_KEY:-CHANGEME_AUTHENTIK_SECRET_KEY_MIN_50_CHARS}
+      AUTHENTIK_ERROR_REPORTING__ENABLED: ${AUTHENTIK_ERROR_REPORTING:-false}
+    volumes:
+      - authentik_media:/media
+      - authentik_templates:/templates
+      - authentik_certs:/certs
+    networks:
+      - kolaboree-net
+    depends_on:
+      - postgres
+      - redis
+    restart: unless-stopped
+
+  # Backend API (FastAPI)
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: kolaboree-backend
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-kolaboree}:${POSTGRES_PASSWORD:-CHANGEME_SECURE_PASSWORD}@postgres:5432/${POSTGRES_DB:-kolaboree}
+      REDIS_URL: redis://:${REDIS_PASSWORD:-CHANGEME_REDIS_PASSWORD}@redis:6379
+    ports:
+      - "${BACKEND_PORT:-8000}:8000"
+    volumes:
+      - ./backend/app:/app/app
+    networks:
+      - kolaboree-net
+    depends_on:
+      - postgres
+      - redis
+    restart: unless-stopped
+
+  # Frontend (React)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: kolaboree-frontend
+    environment:
+      REACT_APP_API_URL: http://localhost:${BACKEND_PORT:-8000}
+    ports:
+      - "${FRONTEND_PORT:-3000}:80"
+    networks:
+      - kolaboree-net
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+  # Nginx Reverse Proxy
+  nginx:
+    image: nginx:alpine
+    container_name: kolaboree-nginx
+    ports:
+      - "${NGINX_PORT:-80}:80"
+      - "${NGINX_HTTPS_PORT:-443}:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+    networks:
+      - kolaboree-net
+    depends_on:
+      - frontend
+      - backend
+      - authentik-server
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  ldap_data:
+    driver: local
+  authentik_media:
+    driver: local
+  authentik_templates:
+    driver: local
+  authentik_certs:
+    driver: local
+
+networks:
+  kolaboree-net:
+    driver: bridge
