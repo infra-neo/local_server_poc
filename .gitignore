@@ -45,12 +45,15 @@ frontend/yarn-debug.log*
 frontend/yarn-error.log*
 
 # Backend (Python)
-backend/__pycache__/
-backend/*.py[cod]
-backend/*$py.class
-backend/.pytest_cache/
-backend/.coverage
-backend/htmlcov/
-backend/.venv/
-backend/venv/
-backend/env/
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.coverage
+htmlcov/
+.venv/
+venv/
+env/
+*.egg-info/
+dist/
+build/
