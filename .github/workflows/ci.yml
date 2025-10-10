@@ -1,0 +1,53 @@
+name: CI - Lint and Validate
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  validate:
+    name: Lint and Validate Configuration
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Install shellcheck
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y shellcheck
+      
+      - name: Lint shell scripts
+        run: |
+          echo "Running shellcheck on all scripts..."
+          shellcheck scripts/*.sh
+      
+      - name: Install Docker Compose
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y docker-compose
+      
+      - name: Validate Docker Compose configuration
+        run: |
+          echo "Validating docker-compose.yml syntax..."
+          # Set dummy environment variables for validation
+          export STACK_NAME=test
+          export POSTGRES_DB=test
+          export POSTGRES_USER=test
+          export POSTGRES_PASSWORD=test
+          export REDIS_PASSWORD=test
+          export AUTHENTIK_SECRET_KEY=test
+          export AUTHENTIK_ERROR_REPORTING=false
+          export GUACD_HOSTNAME=guacd
+          export POSTGRES_HOSTNAME=postgres
+          export GUACAMOLE_DB=test
+          export GUACAMOLE_USER=test
+          export GUACAMOLE_PASSWORD=test
+          export ZITI_CTRL_NAME=test
+          export ZITI_CTRL_PORT=6262
+          export ZITI_EDGE_API_PORT=1280
+          
+          docker-compose -f deployment/docker-compose.yml config > /dev/null
+          echo "✓ Docker Compose configuration is valid"

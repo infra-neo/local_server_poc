@@ -1,0 +1,34 @@
+# Environment variables
+.env
+
+# Logs
+logs/
+*.log
+
+# Local data directories
+data/
+volumes/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Docker volumes and temporary files
+*.pid
+*.seed
+*.pid.lock
+
+# Backup files
+*.bak
+*.backup
+
+# Temporary files
+tmp/
+temp/
