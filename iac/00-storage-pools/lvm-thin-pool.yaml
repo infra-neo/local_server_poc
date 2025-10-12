@@ -1,0 +1,7 @@
+config:
+  lvm.thinpool_name: LXDThinPool
+  lvm.vg_name: ubuntu-vg
+  source: ubuntu-vg
+description: Storage pool LVM para VMs de Windows
+name: windows-vms
+driver: lvm

@@ -1,0 +1,7 @@
+config:
+  ipv4.address: 10.50.0.1/24
+  ipv4.nat: "true"
+  ipv6.address: none
+description: Red bridge para hosts Docker
+name: segbr0
+type: bridge
