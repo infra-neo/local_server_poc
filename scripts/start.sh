@@ -26,12 +26,12 @@ if [ ! -f .env ]; then
     echo -e "${YELLOW}⚠ IMPORTANT:${NC} Please edit .env and change all passwords!"
     echo "  nano .env"
     echo ""
-    read -p "Press Enter to continue after editing .env, or Ctrl+C to exit..."
+    read -r -p "Press Enter to continue after editing .env, or Ctrl+C to exit..."
 fi
 
 # Load environment variables
 echo -e "${BLUE}ℹ${NC} Loading environment variables..."
-export $(grep -v '^#' .env | xargs)
+export "$(grep -v '^#' .env | xargs)"
 
 # Check Docker
 echo ""
