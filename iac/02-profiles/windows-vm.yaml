@@ -1,0 +1,18 @@
+config:
+  limits.cpu: "4"
+  limits.memory: 12GiB
+  security.secureboot: "false"
+  security.hyperv: "true"
+description: Perfil optimizado para VMs Windows 11
+devices:
+  eth0:
+    name: eth0
+    network: winbr0
+    type: nic
+  root:
+    path: /
+    pool: windows-vms
+    type: disk
+  vtpm:
+    type: tpm
+name: win-profile
