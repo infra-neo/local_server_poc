@@ -155,6 +155,7 @@ A modern, full-stack platform for managing multi-cloud infrastructure and provid
    - **Backend API**: http://localhost:8000
    - **API Documentation**: http://localhost:8000/docs
    - **Authentik Admin**: http://localhost:9000
+   - **Guacamole Remote Desktop**: http://localhost:8080/guacamole
 
 ### First-Time Setup
 
@@ -172,8 +173,85 @@ A modern, full-stack platform for managing multi-cloud infrastructure and provid
      - Base DN: `dc=kolaboree,dc=local`
 
 3. **Access the Application**
-   - User Dashboard: Switch to "👤 User View" tab
-   - Admin Dashboard: Switch to "⚙️ Admin View" tab
+   - User Dashboard: Navigate to "User View"
+   - Admin Dashboard: Navigate to "Admin View"
+   - User Management: Click "Users" in Admin toolbar
+   - Remote Access: Click "Remote Access" in Admin toolbar
+
+## 🆕 New Features
+
+### Apache Guacamole Integration
+Kolaboree NG now includes **Apache Guacamole** for clientless remote desktop access:
+- **HTML5-based**: No plugins or client software required
+- **Multiple Protocols**: RDP, VNC, and SSH support
+- **Browser Access**: Connect to VMs directly from your web browser
+- **WebRTC Support**: Low-latency connections
+
+**Access**: Admin Dashboard → Remote Access button
+
+### VM/Container Management
+Complete lifecycle management for virtual machines and containers:
+
+#### Power Management
+- **Start**: Power on stopped VMs/containers
+- **Stop**: Gracefully shutdown running instances
+- **Restart**: Reboot instances
+- **Status Monitoring**: Real-time state tracking
+
+**Access**: Admin Dashboard → View Nodes → Actions menu (⋮)
+
+#### VM Creation Wizard
+Create new VMs with a guided 3-step wizard:
+1. **Basic Configuration**: Name and OS image selection
+   - Ubuntu 22.04/20.04 LTS
+   - Debian 11/12
+   - Alpine Linux
+   - CentOS, Fedora
+2. **Resource Allocation**: CPU, RAM, and Disk sizing with sliders
+3. **Review & Create**: Confirm and provision
+
+**Access**: Admin Dashboard → View Nodes → Create VM button
+
+### User Management
+Centralized user administration interface:
+- View all users with roles and status
+- User/role assignment (demo interface)
+- Integration ready for Authentik/LDAP
+- Active/Inactive status tracking
+
+**Access**: Admin Dashboard → Users button
+
+### Application Package Management
+Install and manage software on VMs similar to Chocolatey/Snap:
+
+#### Supported Package Managers
+- **Snap**: Modern containerized apps
+- **APT**: Debian/Ubuntu packages
+- **YUM/DNF**: Red Hat/CentOS packages
+- **APK**: Alpine packages
+
+#### Pre-configured Bundles
+- **Productivity Suite**: LibreOffice, Firefox, GIMP, Thunderbird
+- **Developer Tools**: VS Code, Git, Docker, Node.js, Python
+- **Web Server Stack**: Nginx, PostgreSQL, Redis
+- **Office Applications**: OnlyOffice, Inkscape, VLC
+
+See [PACKAGE_MANAGEMENT.md](PACKAGE_MANAGEMENT.md) for complete documentation.
+
+### Drag & Drop UI Framework
+Advanced drag-and-drop functionality powered by React DnD:
+- **User-to-VM Assignment**: Drag users to machines for access
+- **Resource Grouping**: Organize VMs by project/environment
+- **Permission Templates**: Visual permission management
+- **Cloud Connection Reordering**: Prioritize connections
+
+See [DRAG_DROP_GUIDE.md](DRAG_DROP_GUIDE.md) for implementation examples.
+
+### Enhanced Cloud Provider Cards
+- **Color-coded Logos**: Visual identification by provider
+- **Power Controls**: Quick access to start/stop/restart
+- **Status Indicators**: Real-time connection status
+- **Custom Branding**: Provider-specific colors and icons
 
 ## ⚙️ Configuration
 
@@ -202,6 +280,7 @@ All configuration is managed through the `.env` file. Key variables:
 - `BACKEND_PORT`: FastAPI backend (default: 8000)
 - `FRONTEND_PORT`: React frontend (default: 3000)
 - `NGINX_PORT`: Main proxy (default: 80)
+- `GUACAMOLE_PORT`: Guacamole web interface (default: 8080)
 
 ## ☁️ Cloud Providers
 

@@ -15,28 +15,42 @@ import {
   ListItem,
   ListItemText,
   CircularProgress,
-  Alert
+  Alert,
+  ListItemButton,
+  Menu,
+  MenuItem
 } from '@mui/material';
 import { motion } from 'framer-motion';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import CloudQueueIcon from '@mui/icons-material/CloudQueue';
+import PeopleIcon from '@mui/icons-material/People';
+import DesktopWindowsIcon from '@mui/icons-material/DesktopWindows';
+import AddBoxIcon from '@mui/icons-material/AddBox';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 import CloudProviderCard from '../components/admin/CloudProviderCard';
 import WizardConector from '../components/admin/WizardConector';
+import VMCreationWizard from '../components/admin/VMCreationWizard';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 
 const AdminDashboard = () => {
   const [connections, setConnections] = useState([]);
   const [wizardOpen, setWizardOpen] = useState(false);
+  const [vmWizardOpen, setVmWizardOpen] = useState(false);
+  const [selectedConnectionForVM, setSelectedConnectionForVM] = useState(null);
   const [nodesDialogOpen, setNodesDialogOpen] = useState(false);
   const [selectedConnection, setSelectedConnection] = useState(null);
   const [nodes, setNodes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [nodeMenuAnchor, setNodeMenuAnchor] = useState(null);
+  const [selectedNode, setSelectedNode] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchConnections();
@@ -71,6 +85,43 @@ const AdminDashboard = () => {
     setConnections([...connections, newConnection]);
   };
 
+  const handleOpenVMWizard = (connectionId) => {
+    setSelectedConnectionForVM(connectionId);
+    setVmWizardOpen(true);
+    setNodesDialogOpen(false);
+  };
+
+  const handleVMCreated = () => {
+    // Refresh nodes if dialog is open
+    if (selectedConnection) {
+      handleViewNodes(selectedConnection);
+    }
+  };
+
+  const handleNodeAction = async (action, nodeId) => {
+    setError('');
+    try {
+      await axios.post(
+        `${API_BASE_URL}/api/v1/admin/cloud_connections/${selectedConnection}/nodes/${nodeId}/${action}`
+      );
+      // Refresh nodes
+      handleViewNodes(selectedConnection);
+      setNodeMenuAnchor(null);
+    } catch (err) {
+      setError(`Failed to ${action} node`);
+    }
+  };
+
+  const handleNodeMenuOpen = (event, node) => {
+    setNodeMenuAnchor(event.currentTarget);
+    setSelectedNode(node);
+  };
+
+  const handleNodeMenuClose = () => {
+    setNodeMenuAnchor(null);
+    setSelectedNode(null);
+  };
+
   return (
     <DndProvider backend={HTML5Backend}>
       <Box sx={{ flexGrow: 1 }}>
@@ -80,6 +131,24 @@ const AdminDashboard = () => {
             <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
               Kolaboree NG - Admin Dashboard
             </Typography>
+            <Button 
+              color="inherit" 
+              startIcon={<PeopleIcon />}
+              onClick={() => navigate('/admin/users')}
+              variant="outlined"
+              sx={{ borderColor: 'white', mr: 1 }}
+            >
+              Users
+            </Button>
+            <Button 
+              color="inherit" 
+              startIcon={<DesktopWindowsIcon />}
+              onClick={() => navigate('/admin/remote-connections')}
+              variant="outlined"
+              sx={{ borderColor: 'white', mr: 1 }}
+            >
+              Remote Access
+            </Button>
             <Button 
               color="inherit" 
               startIcon={<AddCircleIcon />}
@@ -168,24 +237,66 @@ const AdminDashboard = () => {
           maxWidth="md"
           fullWidth
         >
-          <DialogTitle>Nodes / Instances</DialogTitle>
+          <DialogTitle>
+            <Box display="flex" justifyContent="space-between" alignItems="center">
+              Nodes / Instances
+              <Button 
+                startIcon={<AddBoxIcon />}
+                variant="contained"
+                size="small"
+                onClick={() => handleOpenVMWizard(selectedConnection)}
+              >
+                Create VM
+              </Button>
+            </Box>
+          </DialogTitle>
           <DialogContent>
             {nodes.length === 0 ? (
               <Alert severity="info">No nodes found for this connection</Alert>
             ) : (
               <List>
                 {nodes.map((node) => (
-                  <ListItem key={node.id}>
+                  <ListItemButton key={node.id}>
                     <ListItemText
                       primary={node.name}
                       secondary={`State: ${node.state} | IPs: ${node.ip_addresses.join(', ') || 'N/A'}`}
                     />
-                  </ListItem>
+                    <IconButton 
+                      edge="end" 
+                      onClick={(e) => handleNodeMenuOpen(e, node)}
+                    >
+                      <MoreVertIcon />
+                    </IconButton>
+                  </ListItemButton>
                 ))}
               </List>
             )}
           </DialogContent>
         </Dialog>
+
+        {/* Node Actions Menu */}
+        <Menu
+          anchorEl={nodeMenuAnchor}
+          open={Boolean(nodeMenuAnchor)}
+          onClose={handleNodeMenuClose}
+        >
+          <MenuItem onClick={() => handleNodeAction('start', selectedNode?.id)}>
+            Start
+          </MenuItem>
+          <MenuItem onClick={() => handleNodeAction('stop', selectedNode?.id)}>
+            Stop
+          </MenuItem>
+          <MenuItem onClick={() => handleNodeAction('restart', selectedNode?.id)}>
+            Restart
+          </MenuItem>
+        </Menu>
+
+        <VMCreationWizard
+          open={vmWizardOpen}
+          onClose={() => setVmWizardOpen(false)}
+          connectionId={selectedConnectionForVM}
+          onSuccess={handleVMCreated}
+        />
       </Box>
     </DndProvider>
   );

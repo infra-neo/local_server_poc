@@ -501,6 +501,140 @@ class CloudManager:
         # Remove from connections dict
         del self.connections[connection_id]
         return True
+    
+    # Power management methods
+    def start_node(self, connection_id: str, node_id: str) -> bool:
+        """Start/power on a node"""
+        conn = self.connections.get(connection_id)
+        if not conn:
+            return False
+        
+        provider_type = conn["type"]
+        
+        if provider_type == "lxd":
+            client = self.lxd_clients.get(connection_id)
+            if client:
+                try:
+                    container = client.containers.get(node_id)
+                    container.start()
+                    return True
+                except:
+                    pass
+        elif provider_type == "gcp":
+            driver = conn.get("driver")
+            if driver:
+                try:
+                    nodes = driver.list_nodes()
+                    node = next((n for n in nodes if n.id == node_id), None)
+                    if node:
+                        driver.ex_start_node(node)
+                        return True
+                except:
+                    pass
+        
+        return False
+    
+    def stop_node(self, connection_id: str, node_id: str) -> bool:
+        """Stop/power off a node"""
+        conn = self.connections.get(connection_id)
+        if not conn:
+            return False
+        
+        provider_type = conn["type"]
+        
+        if provider_type == "lxd":
+            client = self.lxd_clients.get(connection_id)
+            if client:
+                try:
+                    container = client.containers.get(node_id)
+                    container.stop()
+                    return True
+                except:
+                    pass
+        elif provider_type == "gcp":
+            driver = conn.get("driver")
+            if driver:
+                try:
+                    nodes = driver.list_nodes()
+                    node = next((n for n in nodes if n.id == node_id), None)
+                    if node:
+                        driver.ex_stop_node(node)
+                        return True
+                except:
+                    pass
+        
+        return False
+    
+    def restart_node(self, connection_id: str, node_id: str) -> bool:
+        """Restart a node"""
+        conn = self.connections.get(connection_id)
+        if not conn:
+            return False
+        
+        provider_type = conn["type"]
+        
+        if provider_type == "lxd":
+            client = self.lxd_clients.get(connection_id)
+            if client:
+                try:
+                    container = client.containers.get(node_id)
+                    container.restart()
+                    return True
+                except:
+                    pass
+        elif provider_type == "gcp":
+            driver = conn.get("driver")
+            if driver:
+                try:
+                    nodes = driver.list_nodes()
+                    node = next((n for n in nodes if n.id == node_id), None)
+                    if node:
+                        node.reboot()
+                        return True
+                except:
+                    pass
+        
+        return False
+    
+    def create_node(self, connection_id: str, name: str, config: Dict[str, Any]) -> Optional[Node]:
+        """Create a new VM/Container"""
+        conn = self.connections.get(connection_id)
+        if not conn:
+            return None
+        
+        provider_type = conn["type"]
+        
+        if provider_type == "lxd":
+            client = self.lxd_clients.get(connection_id)
+            if client:
+                try:
+                    # Default configuration for LXD container
+                    container_config = {
+                        'name': name,
+                        'source': {
+                            'type': 'image',
+                            'alias': config.get('image', 'ubuntu:22.04')
+                        },
+                        'config': config.get('config', {}),
+                        'devices': config.get('devices', {})
+                    }
+                    
+                    container = client.containers.create(container_config, wait=True)
+                    container.start(wait=True)
+                    
+                    return Node(
+                        id=container.name,
+                        name=container.name,
+                        state=container.status,
+                        provider_type="lxd",
+                        connection_id=connection_id,
+                        ip_addresses=[]
+                    )
+                except Exception as e:
+                    print(f"Error creating LXD container: {e}")
+                    return None
+        
+        return None
 
 
 # Global instance
