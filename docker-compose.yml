@@ -158,6 +158,34 @@ services:
       - backend
     restart: unless-stopped
 
+  # Guacamole Daemon (guacd)
+  guacd:
+    image: guacamole/guacd:latest
+    container_name: kolaboree-guacd
+    networks:
+      - kolaboree-net
+    restart: unless-stopped
+
+  # Guacamole Web Application
+  guacamole:
+    image: guacamole/guacamole:latest
+    container_name: kolaboree-guacamole
+    environment:
+      GUACD_HOSTNAME: guacd
+      GUACD_PORT: 4822
+      POSTGRES_HOSTNAME: postgres
+      POSTGRES_DATABASE: ${POSTGRES_DB:-kolaboree}
+      POSTGRES_USER: ${POSTGRES_USER:-kolaboree}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-CHANGEME_SECURE_PASSWORD}
+    ports:
+      - "${GUACAMOLE_PORT:-8080}:8080"
+    networks:
+      - kolaboree-net
+    depends_on:
+      - postgres
+      - guacd
+    restart: unless-stopped
+
   # Nginx Reverse Proxy
   nginx:
     image: nginx:alpine
@@ -174,6 +202,7 @@ services:
       - frontend
       - backend
       - authentik-server
+      - guacamole
     restart: unless-stopped
 
 volumes:

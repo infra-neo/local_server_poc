@@ -63,3 +63,23 @@ class Workspace(BaseModel):
 class UserWorkspacesList(BaseModel):
     """List of user workspaces"""
     workspaces: List[Workspace]
+
+
+class VMCreateRequest(BaseModel):
+    """Request model for creating a new VM"""
+    name: str = Field(..., description="Name for the new VM/Container")
+    image: str = Field(default="ubuntu:22.04", description="Image to use (e.g., ubuntu:22.04, debian:11)")
+    cpu_count: Optional[int] = Field(default=2, description="Number of CPU cores")
+    memory_mb: Optional[int] = Field(default=2048, description="Memory in MB")
+    disk_gb: Optional[int] = Field(default=20, description="Disk size in GB")
+    config: Dict[str, Any] = Field(default_factory=dict, description="Additional provider-specific configuration")
+
+
+class GuacamoleConnectionRequest(BaseModel):
+    """Request model for creating a Guacamole connection"""
+    node_id: str = Field(..., description="ID of the node to connect to")
+    protocol: str = Field(default="rdp", description="Connection protocol: rdp, vnc, ssh")
+    port: Optional[int] = Field(default=None, description="Port number (defaults based on protocol)")
+    username: Optional[str] = Field(default=None, description="Username for authentication")
+    password: Optional[str] = Field(default=None, description="Password for authentication")
+
