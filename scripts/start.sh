@@ -31,7 +31,10 @@ fi
 
 # Load environment variables
 echo -e "${BLUE}ℹ${NC} Loading environment variables..."
-export "$(grep -v '^#' .env | xargs)"
+set -a
+# shellcheck source=/dev/null
+source .env
+set +a
 
 # Check Docker
 echo ""

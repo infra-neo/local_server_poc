@@ -104,9 +104,8 @@ async def delete_cloud_connection(connection_id: str):
             detail=f"Cloud connection {connection_id} not found"
         )
     
-    # Remove from cloud manager
-    if connection_id in cloud_manager.connections:
-        del cloud_manager.connections[connection_id]
+    # Disconnect and cleanup resources
+    cloud_manager.disconnect(connection_id)
     
     # Remove from database
     del cloud_connections_db[connection_id]

@@ -73,6 +73,31 @@ class CloudManager:
             
             nodes = []
             for node in libcloud_nodes:
+                # Sanitize extra data - convert complex objects to simple types
+                extra = {}
+                if node.extra:
+                    for key, value in node.extra.items():
+                        # Convert complex objects to strings or skip them
+                        if isinstance(value, (str, int, float, bool, type(None))):
+                            extra[key] = value
+                        elif isinstance(value, (list, dict)):
+                            try:
+                                # Try to convert to simple types
+                                extra[key] = str(value)
+                            except:
+                                pass
+                        else:
+                            # For other objects (like GCEZone), get their name or string representation
+                            try:
+                                if hasattr(value, 'name'):
+                                    extra[key] = value.name
+                                elif hasattr(value, 'id'):
+                                    extra[key] = value.id
+                                else:
+                                    extra[key] = str(value)
+                            except:
+                                pass
+                
                 nodes.append(Node(
                     id=node.id,
                     name=node.name,
@@ -80,11 +105,13 @@ class CloudManager:
                     provider_type="gcp",
                     connection_id=connection_id,
                     ip_addresses=[ip for ip in node.public_ips + node.private_ips if ip],
-                    extra=node.extra
+                    extra=extra
                 ))
             return nodes
         except Exception as e:
             print(f"Error listing GCP nodes: {str(e)}")
+            import traceback
+            traceback.print_exc()
             return []
     
     # LXD Implementation (100% functional)
@@ -93,26 +120,58 @@ class CloudManager:
         Connect to LXD
         credentials should contain:
         - endpoint: LXD endpoint URL (e.g., https://localhost:8443)
-        - cert: Client certificate (optional, for TLS)
-        - key: Client key (optional, for TLS)
+        - cert: Client certificate (path or PEM content)
+        - key: Client key (path or PEM content)
         - verify: Verify SSL (default: False for local)
         - trust_password: Trust password for initial setup (optional)
         """
         try:
+            import tempfile
+            import os
+            
             endpoint = endpoint or credentials.get("endpoint", "https://localhost:8443")
-            cert = credentials.get("cert")
-            key = credentials.get("key")
+            cert_data = credentials.get("cert")
+            key_data = credentials.get("key")
             verify = credentials.get("verify", False)
             
-            # Connect to LXD
-            if cert and key:
+            cert_path = None
+            key_path = None
+            temp_cert = None
+            temp_key = None
+            
+            # Handle cert and key - can be file paths or PEM content
+            if cert_data and key_data:
+                # Check if it's PEM content (starts with -----BEGIN)
+                if isinstance(cert_data, str) and cert_data.strip().startswith("-----BEGIN"):
+                    # It's PEM content, write to temp file
+                    temp_cert = tempfile.NamedTemporaryFile(mode='w', suffix='.crt', delete=False)
+                    temp_cert.write(cert_data)
+                    temp_cert.flush()
+                    cert_path = temp_cert.name
+                else:
+                    # It's a file path
+                    cert_path = cert_data
+                
+                if isinstance(key_data, str) and key_data.strip().startswith("-----BEGIN"):
+                    # It's PEM content, write to temp file
+                    temp_key = tempfile.NamedTemporaryFile(mode='w', suffix='.key', delete=False)
+                    temp_key.write(key_data)
+                    temp_key.flush()
+                    key_path = temp_key.name
+                else:
+                    # It's a file path
+                    key_path = key_data
+                
+                # Connect to LXD with certificates
+                print(f"Connecting to LXD at {endpoint} with certificates")
                 client = pylxd.Client(
                     endpoint=endpoint,
-                    cert=(cert, key),
+                    cert=(cert_path, key_path),
                     verify=verify
                 )
             else:
                 # Try without cert (for local unix socket)
+                print(f"Connecting to LXD at {endpoint} without certificates")
                 try:
                     client = pylxd.Client()
                 except:
@@ -120,17 +179,45 @@ class CloudManager:
                     client = pylxd.Client(endpoint=endpoint, verify=verify)
             
             # Test connection
+            print("Testing LXD connection by listing instances...")
             client.instances.all()
+            print("LXD connection successful!")
             
             self.lxd_clients[connection_id] = client
             self.connections[connection_id] = {
                 "client": client,
                 "type": "lxd",
-                "endpoint": endpoint
+                "endpoint": endpoint,
+                "temp_cert": temp_cert.name if temp_cert else None,
+                "temp_key": temp_key.name if temp_key else None
             }
+            
+            # Close temp file handles but keep files (will be cleaned up on disconnect)
+            if temp_cert:
+                temp_cert.close()
+            if temp_key:
+                temp_key.close()
+            
             return True
         except Exception as e:
             print(f"Error connecting to LXD: {str(e)}")
+            import traceback
+            traceback.print_exc()
+            
+            # Cleanup temp files on error
+            if temp_cert:
+                temp_cert.close()
+                try:
+                    os.unlink(temp_cert.name)
+                except:
+                    pass
+            if temp_key:
+                temp_key.close()
+                try:
+                    os.unlink(temp_key.name)
+                except:
+                    pass
+            
             return False
     
     def list_lxd_nodes(self, connection_id: str) -> List[Node]:
@@ -381,6 +468,39 @@ class CloudManager:
             "type": conn["type"],
             "connection_id": connection_id
         }
+    
+    def disconnect(self, connection_id: str) -> bool:
+        """Disconnect from a cloud provider and cleanup resources"""
+        import os
+        
+        conn = self.connections.get(connection_id)
+        if not conn:
+            return False
+        
+        # Cleanup temporary certificate files for LXD
+        if conn["type"] == "lxd":
+            temp_cert = conn.get("temp_cert")
+            temp_key = conn.get("temp_key")
+            
+            if temp_cert:
+                try:
+                    os.unlink(temp_cert)
+                except:
+                    pass
+            
+            if temp_key:
+                try:
+                    os.unlink(temp_key)
+                except:
+                    pass
+            
+            # Remove from lxd_clients dict
+            if connection_id in self.lxd_clients:
+                del self.lxd_clients[connection_id]
+        
+        # Remove from connections dict
+        del self.connections[connection_id]
+        return True
 
 
 # Global instance

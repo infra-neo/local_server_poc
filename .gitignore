@@ -48,6 +48,13 @@ frontend/yarn-error.log*
 __pycache__/
 *.py[cod]
 *$py.class
+
+# Cloud credentials (SENSITIVE)
+credentials/
+*.key
+*.crt
+*service-account*.json
+fine-web-*.json
 .pytest_cache/
 .coverage
 htmlcov/
@@ -57,3 +64,9 @@ env/
 *.egg-info/
 dist/
 build/
+
+# Credenciales cloud
+credentials/
+*.key
+*.crt
+*service-account*.json
