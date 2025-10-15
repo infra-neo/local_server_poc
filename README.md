@@ -282,6 +282,13 @@ All configuration is managed through the `.env` file. Key variables:
 - `NGINX_PORT`: Main proxy (default: 80)
 - `GUACAMOLE_PORT`: Guacamole web interface (default: 8080)
 
+#### Tailscale VPN (Required for Remote Cloud Access)
+- `TAILSCALE_AUTH_KEY`: **Required for connecting to remote LXD servers and other clouds**
+- Generate at: https://login.tailscale.com/admin/settings/keys
+- See [TAILSCALE_SETUP.md](./TAILSCALE_SETUP.md) for complete setup guide
+
+**⚠️ IMPORTANTE**: Este proyecto **requiere Tailscale** para comunicarse con proveedores de nube remotos.
+
 ## ☁️ Cloud Providers
 
 ### Fully Functional Providers
@@ -296,7 +303,9 @@ All configuration is managed through the `.env` file. Key variables:
 - **Status**: ✅ 100% Functional
 - **Features**: List containers and VMs, view status and IPs
 - **Setup**: Provide LXD endpoint and optional certificates
-- **Required**: LXD API endpoint (e.g., https://localhost:8443)
+- **Required**: LXD API endpoint (e.g., https://100.94.245.27:8443)
+- **⚠️ Important**: Requires Tailscale for remote LXD server access
+- **Documentation**: See [TAILSCALE_SETUP.md](./TAILSCALE_SETUP.md) and [CLOUD_SETUP.md](./CLOUD_SETUP.md)
 
 ### Placeholder Providers
 

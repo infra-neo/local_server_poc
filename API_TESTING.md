@@ -1,5 +1,18 @@
 # 🔌 API Testing - Kolaboree Cloud Connections
 
+## ⚠️ PREREQUISITO - TAILSCALE
+
+**Este proyecto requiere Tailscale para comunicarse con proveedores cloud remotos.**
+
+Antes de probar las conexiones:
+1. ✅ Configura Tailscale (ver **[TAILSCALE_SETUP.md](./TAILSCALE_SETUP.md)**)
+2. ✅ Verifica que esté conectado:
+   ```bash
+   docker exec kolaboree-backend tailscale status
+   ```
+
+---
+
 ## ✅ Todo está listo para probar
 
 ### Método 1: Script Python Automatizado (RECOMENDADO)
@@ -100,11 +113,18 @@ docker restart kolaboree-backend
 
 ### Error: Failed to connect to LXD
 ```bash
-# Verifica conectividad
-curl -k https://100.94.245.27:8443
+# PRIMERO: Verifica que Tailscale esté conectado en el backend
+docker exec kolaboree-backend tailscale status
 
-# Verifica Tailscale
-tailscale status | grep 100.94.245.27
+# Debe mostrar "connected" y listar dispositivos
+
+# Verifica conectividad al servidor LXD via Tailscale
+docker exec kolaboree-backend ping -c 3 100.94.245.27
+
+# Verifica conectividad HTTPS
+docker exec kolaboree-backend curl -k https://100.94.245.27:8443
+
+# Si Tailscale no está conectado, ver TAILSCALE_SETUP.md
 ```
 
 ### Ver documentación interactiva
