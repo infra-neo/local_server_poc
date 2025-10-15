@@ -17,6 +17,27 @@ This will verify:
 - Python syntax
 - Docker Compose configuration
 
+### Tailscale Connectivity Check
+
+**⚠️ IMPORTANT**: Tailscale is required for connecting to remote cloud providers.
+
+Run the Tailscale health check:
+
+```bash
+bash scripts/check-tailscale.sh
+```
+
+This comprehensive check verifies:
+- Backend container is running
+- Tailscale is installed
+- TAILSCALE_AUTH_KEY is configured
+- Tailscale daemon is running
+- Tailscale is connected to the network
+- LXD server (100.94.245.27) is reachable
+- Health endpoint includes Tailscale status
+
+For detailed Tailscale setup, see [TAILSCALE_SETUP.md](./TAILSCALE_SETUP.md).
+
 ## Testing Components
 
 ### Backend API
@@ -66,9 +87,16 @@ curl -X POST http://localhost:8000/api/v1/admin/cloud_connections \
 
 #### LXD Testing
 
+**⚠️ PREREQUISITE**: Tailscale must be connected to access remote LXD servers.
+
 To test LXD connectivity:
-1. Ensure LXD is installed and running
-2. Configure LXD to accept remote connections (if needed)
+1. Ensure Tailscale is configured and connected (see [TAILSCALE_SETUP.md](./TAILSCALE_SETUP.md))
+2. Verify LXD server is accessible via Tailscale:
+   ```bash
+   docker exec kolaboree-backend ping -c 3 100.94.245.27
+   docker exec kolaboree-backend curl -k https://100.94.245.27:8443
+   ```
+3. Ensure you have LXD client certificates
 
 Example API call:
 ```bash
@@ -138,6 +166,11 @@ docker compose ps
 - [ ] Backend starts without errors
 - [ ] Frontend builds successfully
 - [ ] API documentation is accessible
+- [ ] **Tailscale is installed in backend container**
+- [ ] **Tailscale daemon is running**
+- [ ] **Tailscale is connected (if auth key provided)**
+- [ ] **Can ping LXD server via Tailscale (100.94.245.27)**
+- [ ] **Health endpoint includes Tailscale status**
 - [ ] Can create a cloud connection (placeholder)
 - [ ] Can list cloud connections
 - [ ] Can view nodes for a connection
@@ -149,7 +182,17 @@ docker compose ps
 - [ ] Authentik initializes correctly
 - [ ] OpenLDAP is accessible
 
+**Note**: Items in **bold** are Tailscale-related tests added as part of the requirement that this project always uses Tailscale for cloud communication.
+
 ## Troubleshooting Tests
+
+### Tailscale not connecting
+- Check TAILSCALE_AUTH_KEY is set in .env
+- Verify auth key is valid (not expired)
+- Check container has NET_ADMIN capability
+- Verify /dev/net/tun device is available
+- Run: `bash scripts/check-tailscale.sh`
+- See: [TAILSCALE_SETUP.md](./TAILSCALE_SETUP.md)
 
 ### Backend won't start
 - Check Python version (3.11+)

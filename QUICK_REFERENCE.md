@@ -13,6 +13,10 @@ cd local_server_poc
 cp .env.example .env
 nano .env  # Change all passwords!
 
+# IMPORTANT: Add Tailscale auth key for remote cloud access
+# Get it from: https://login.tailscale.com/admin/settings/keys
+# Add to .env: TAILSCALE_AUTH_KEY=tskey-auth-...
+
 # 3. Start
 bash scripts/start.sh
 
@@ -186,6 +190,33 @@ pip install -r requirements.txt
 docker compose logs -f backend
 ```
 
+### Tailscale issues
+
+```bash
+# Run comprehensive health check
+bash scripts/check-tailscale.sh
+
+# Check if Tailscale is running
+docker exec kolaboree-backend pgrep tailscaled
+
+# Check Tailscale status
+docker exec kolaboree-backend tailscale status
+
+# View Tailscale logs
+docker logs kolaboree-backend | grep -i tailscale
+
+# Restart backend with Tailscale
+docker compose restart backend
+
+# Test LXD server connectivity via Tailscale
+docker exec kolaboree-backend ping -c 3 100.94.245.27
+docker exec kolaboree-backend curl -k https://100.94.245.27:8443
+
+# For detailed help, see:
+# - TAILSCALE_SETUP.md
+# - CLOUD_SETUP.md
+```
+
 ### Frontend errors
 
 ```bash
@@ -250,8 +281,11 @@ docker run --rm \
 ### Check Service Health
 
 ```bash
-# Backend health
+# Backend health (includes Tailscale status)
 curl http://localhost:8000/health
+
+# Check Tailscale connectivity (comprehensive)
+bash scripts/check-tailscale.sh
 
 # Frontend
 curl -I http://localhost
@@ -261,6 +295,9 @@ docker compose exec postgres pg_isready -U kolaboree
 
 # Redis
 docker compose exec redis redis-cli ping
+
+# Tailscale status in backend
+docker exec kolaboree-backend tailscale status
 ```
 
 ### Resource Usage
