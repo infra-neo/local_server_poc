@@ -443,11 +443,16 @@ docker-compose up -d --build
 ```
 
 #### Cannot connect to cloud provider
+- **For remote LXD servers**: Verify Tailscale is connected (see [TAILSCALE_SETUP.md](./TAILSCALE_SETUP.md))
+  ```bash
+  bash scripts/check-tailscale.sh
+  docker exec kolaboree-backend tailscale status
+  ```
 - Verify credentials are correct
 - Check network connectivity
 - Review backend logs: `docker-compose logs backend`
 - For GCP: Ensure service account has proper permissions
-- For LXD: Verify endpoint is accessible
+- For LXD: Verify endpoint is accessible and Tailscale is connected
 
 #### Frontend can't reach backend
 - Verify `REACT_APP_API_URL` in frontend environment
@@ -480,6 +485,42 @@ docker-compose restart
 docker-compose down -v
 docker-compose up -d
 ```
+
+## 📚 Documentation
+
+Complete documentation is available:
+
+### Setup & Configuration
+- **[README.md](./README.md)** - This file, main documentation
+- **[TAILSCALE_SETUP.md](./TAILSCALE_SETUP.md)** - Tailscale VPN setup (Required for remote clouds)
+- **[CLOUD_SETUP.md](./CLOUD_SETUP.md)** - Cloud provider configuration (LXD, GCP)
+- **[QUICK_START_LXD.md](./QUICK_START_LXD.md)** - Quick guide for LXD connections
+- **.env.example** - Environment variable template
+
+### Usage & Reference
+- **[QUICK_REFERENCE.md](./QUICK_REFERENCE.md)** - Command reference and common tasks
+- **[API_TESTING.md](./API_TESTING.md)** - API testing guide
+- **[EXAMPLES.md](./EXAMPLES.md)** - API usage examples
+
+### Architecture & Development
+- **[ARCHITECTURE.md](./ARCHITECTURE.md)** - System architecture and design
+- **[TESTING.md](./TESTING.md)** - Testing guide and checklist
+- **[CONTRIBUTING.md](./CONTRIBUTING.md)** - Contribution guidelines
+- **[FEATURES.md](./FEATURES.md)** - Detailed feature documentation
+- **[PACKAGE_MANAGEMENT.md](./PACKAGE_MANAGEMENT.md)** - Package management guide
+- **[DRAG_DROP_GUIDE.md](./DRAG_DROP_GUIDE.md)** - Drag & drop UI implementation
+
+### Implementation Details
+- **[PROJECT_SUMMARY.md](./PROJECT_SUMMARY.md)** - Project overview and metrics
+- **[IMPLEMENTATION_SUMMARY.md](./IMPLEMENTATION_SUMMARY.md)** - Implementation details
+- **[TAILSCALE_IMPLEMENTATION.md](./TAILSCALE_IMPLEMENTATION.md)** - Tailscale integration details
+- **[CHANGELOG.md](./CHANGELOG.md)** - Version history
+
+### Scripts
+- **scripts/check-tailscale.sh** - Comprehensive Tailscale health check
+- **scripts/validate.sh** - Validate project structure
+- **scripts/start.sh** - Start all services
+- **scripts/stop.sh** - Stop all services
 
 ## 🤝 Contributing
 
