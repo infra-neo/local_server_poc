@@ -15,7 +15,7 @@ import axios from 'axios';
 
 import WorkspaceCard from '../components/user/WorkspaceCard';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+const API_BASE_URL = process.env.REACT_APP_API_URL || '';
 
 const UserDashboard = () => {
   const [workspaces, setWorkspaces] = useState([]);

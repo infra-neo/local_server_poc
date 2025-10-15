@@ -1,17 +1,16 @@
 #!/bin/bash
 set -e
 
-echo "🔗 Kolaboree Backend - Starting with Tailscale"
+echo "🔗 Kolaboree Backend - Starting (Tailscale disabled for testing)"
 
-# Start Tailscale daemon in the background
-echo "Starting Tailscale daemon..."
-tailscaled --state=/var/lib/tailscale/tailscaled.state --socket=/var/run/tailscale/tailscaled.sock &
+# Check if we should enable Tailscale
+if [ "$ENABLE_TAILSCALE" = "true" ] && [ -n "$TAILSCALE_AUTH_KEY" ] && [ "$TAILSCALE_AUTH_KEY" != "tskey-auth-kHCHSxfcu321CNTRL-qh4mk5yedn5Bp6mkqauLn5itcCyWdnmCP" ]; then
+    echo "Starting Tailscale daemon..."
+    tailscaled --state=/var/lib/tailscale/tailscaled.state --socket=/var/run/tailscale/tailscaled.sock &
 
-# Wait for tailscaled to start
-sleep 2
+    # Wait for tailscaled to start
+    sleep 2
 
-# Connect to Tailscale if auth key is provided
-if [ -n "$TAILSCALE_AUTH_KEY" ]; then
     echo "Authenticating with Tailscale..."
     tailscale up --authkey="$TAILSCALE_AUTH_KEY" --hostname="kolaboree-backend" --accept-routes
     echo "✅ Tailscale connected successfully!"
@@ -19,9 +18,9 @@ if [ -n "$TAILSCALE_AUTH_KEY" ]; then
     # Show Tailscale status
     tailscale status
 else
-    echo "⚠️  TAILSCALE_AUTH_KEY not set. Tailscale will not be authenticated."
-    echo "⚠️  To connect to other clouds via Tailscale, set TAILSCALE_AUTH_KEY environment variable."
-    echo "⚠️  Generate an auth key at: https://login.tailscale.com/admin/settings/keys"
+    echo "⚠️  Tailscale disabled for this session"
+    echo "⚠️  Set ENABLE_TAILSCALE=true and provide valid TAILSCALE_AUTH_KEY to enable"
+    echo "⚠️  Note: Local LXD connections will work without Tailscale"
 fi
 
 # Execute the main command
