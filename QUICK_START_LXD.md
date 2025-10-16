@@ -1,5 +1,22 @@
 # 🎯 Guía Rápida: Agregar Conexión LXD a Kolaboree
 
+## ⚠️ REQUISITO PREVIO - TAILSCALE
+
+**Este proyecto requiere Tailscale para comunicarse con servidores LXD remotos.**
+
+Antes de continuar, asegúrate de:
+1. ✅ Haber configurado Tailscale (ver **[TAILSCALE_SETUP.md](./TAILSCALE_SETUP.md)**)
+2. ✅ Verificar que Tailscale esté conectado:
+   ```bash
+   docker exec kolaboree-backend tailscale status
+   ```
+3. ✅ Poder hacer ping al servidor LXD:
+   ```bash
+   docker exec kolaboree-backend ping -c 3 100.94.245.27
+   ```
+
+---
+
 ## ✅ Estado Actual
 
 - ✅ Certificado cliente generado
@@ -99,14 +116,22 @@ Si todo funciona correctamente:
 - **Solución**: Asegúrate de copiar TODO el contenido, incluyendo las líneas `-----BEGIN...-----` y `-----END...-----`
 - No debe haber espacios extras al inicio o final
 
-**Posible causa 2**: Problema de red
-- **Solución**: Verifica que Tailscale esté activo:
+**Posible causa 2**: Problema de red o Tailscale no conectado
+- **Solución**: 
   ```bash
-  tailscale status
+  # Verificar estado de Tailscale en el contenedor backend
+  docker exec kolaboree-backend tailscale status
+  
+  # Si no está conectado, revisar la configuración
+  # Ver TAILSCALE_SETUP.md para más detalles
+  
+  # Verificar conectividad al servidor LXD via Tailscale
+  docker exec kolaboree-backend ping -c 3 100.94.245.27
   ```
-- Prueba conectividad:
+- Si Tailscale no está configurado, ver **[TAILSCALE_SETUP.md](./TAILSCALE_SETUP.md)**
+- Prueba conectividad HTTPS:
   ```bash
-  curl -k https://100.94.245.27:8443
+  docker exec kolaboree-backend curl -k https://100.94.245.27:8443
   ```
 
 **Posible causa 3**: El backend necesita reiniciarse

@@ -40,11 +40,40 @@ async def root():
 
 @app.get("/health")
 async def health_check():
-    """Health check endpoint"""
-    return {
+    """Health check endpoint with Tailscale status"""
+    import subprocess
+    import os
+    
+    health = {
         "status": "healthy",
-        "service": "kolaboree-ng-backend"
+        "service": "kolaboree-ng-backend",
+        "tailscale": {
+            "required": True,
+            "configured": bool(os.getenv("TAILSCALE_AUTH_KEY")),
+            "status": "unknown"
+        }
     }
+    
+    # Check if Tailscale is running
+    try:
+        result = subprocess.run(
+            ["tailscale", "status", "--json"],
+            capture_output=True,
+            text=True,
+            timeout=5
+        )
+        if result.returncode == 0:
+            import json
+            ts_status = json.loads(result.stdout)
+            health["tailscale"]["status"] = "connected" if ts_status.get("BackendState") == "Running" else "disconnected"
+            health["tailscale"]["self_ip"] = ts_status.get("Self", {}).get("TailscaleIPs", [None])[0]
+        else:
+            health["tailscale"]["status"] = "not_running"
+    except Exception as e:
+        health["tailscale"]["status"] = "error"
+        health["tailscale"]["error"] = str(e)
+    
+    return health
 
 
 if __name__ == "__main__":

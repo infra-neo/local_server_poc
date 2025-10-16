@@ -131,16 +131,27 @@ services:
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER:-kolaboree}:${POSTGRES_PASSWORD:-CHANGEME_SECURE_PASSWORD}@postgres:5432/${POSTGRES_DB:-kolaboree}
       REDIS_URL: redis://:${REDIS_PASSWORD:-CHANGEME_REDIS_PASSWORD}@redis:6379
+      ENABLE_TAILSCALE: ${ENABLE_TAILSCALE:-false}
+      TAILSCALE_AUTH_KEY: ${TAILSCALE_AUTH_KEY:-}
     ports:
       - "${BACKEND_PORT:-8000}:8000"
     volumes:
       - ./backend/app:/app/app
+      - tailscale_state:/var/lib/tailscale
     networks:
       - kolaboree-net
     depends_on:
       - postgres
       - redis
     restart: unless-stopped
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    sysctls:
+      - net.ipv4.ip_forward=1
+      - net.ipv6.conf.all.forwarding=1
 
   # Frontend (React)
   frontend:
@@ -219,6 +230,8 @@ volumes:
   authentik_templates:
     driver: local
   authentik_certs:
+    driver: local
+  tailscale_state:
     driver: local
 
 networks:

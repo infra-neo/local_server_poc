@@ -36,7 +36,7 @@ import CloudProviderCard from '../components/admin/CloudProviderCard';
 import WizardConector from '../components/admin/WizardConector';
 import VMCreationWizard from '../components/admin/VMCreationWizard';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+const API_BASE_URL = process.env.REACT_APP_API_URL || '';
 
 const AdminDashboard = () => {
   const [connections, setConnections] = useState([]);

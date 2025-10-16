@@ -1,5 +1,16 @@
 # 🔐 Configuración de Proveedores Cloud - Kolaboree
 
+## ⚠️ REQUISITO IMPORTANTE - TAILSCALE
+
+**Este proyecto SIEMPRE debe usar la conexión por Tailscale para poder comunicarse con las otras nubes.**
+
+Antes de continuar con la configuración de LXD o cualquier otro proveedor cloud, asegúrate de:
+
+1. ✅ Tener Tailscale configurado y conectado
+2. ✅ Ver la guía completa en: **[TAILSCALE_SETUP.md](./TAILSCALE_SETUP.md)**
+
+---
+
 Este documento explica cómo configurar las conexiones a **LXD** y **GCP** para Kolaboree.
 
 ## 📁 Archivos Generados
@@ -137,6 +148,12 @@ curl -k -X GET https://100.94.245.27:8443/1.0/instances \
 
 **Solución**:
 ```bash
+# IMPORTANTE: Verifica primero que Tailscale esté conectado
+docker exec kolaboree-backend tailscale status
+
+# Verifica conectividad al servidor via Tailscale
+docker exec kolaboree-backend ping -c 3 100.94.245.27
+
 # En el servidor LXD, verifica la configuración
 lxc config get core.https_address
 # Debería mostrar: [::]
@@ -144,6 +161,8 @@ lxc config get core.https_address
 # Si no, configúralo:
 lxc config set core.https_address [::]:8443
 ```
+
+**Nota**: Este proyecto requiere Tailscale para comunicarse con servidores LXD remotos. Ver **[TAILSCALE_SETUP.md](./TAILSCALE_SETUP.md)** para más detalles.
 
 ### GCP: Authentication failed
 

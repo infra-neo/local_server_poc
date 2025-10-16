@@ -282,6 +282,13 @@ All configuration is managed through the `.env` file. Key variables:
 - `NGINX_PORT`: Main proxy (default: 80)
 - `GUACAMOLE_PORT`: Guacamole web interface (default: 8080)
 
+#### Tailscale VPN (Required for Remote Cloud Access)
+- `TAILSCALE_AUTH_KEY`: **Required for connecting to remote LXD servers and other clouds**
+- Generate at: https://login.tailscale.com/admin/settings/keys
+- See [TAILSCALE_SETUP.md](./TAILSCALE_SETUP.md) for complete setup guide
+
+**⚠️ IMPORTANTE**: Este proyecto **requiere Tailscale** para comunicarse con proveedores de nube remotos.
+
 ## ☁️ Cloud Providers
 
 ### Fully Functional Providers
@@ -296,7 +303,9 @@ All configuration is managed through the `.env` file. Key variables:
 - **Status**: ✅ 100% Functional
 - **Features**: List containers and VMs, view status and IPs
 - **Setup**: Provide LXD endpoint and optional certificates
-- **Required**: LXD API endpoint (e.g., https://localhost:8443)
+- **Required**: LXD API endpoint (e.g., https://100.94.245.27:8443)
+- **⚠️ Important**: Requires Tailscale for remote LXD server access
+- **Documentation**: See [TAILSCALE_SETUP.md](./TAILSCALE_SETUP.md) and [CLOUD_SETUP.md](./CLOUD_SETUP.md)
 
 ### Placeholder Providers
 
@@ -434,11 +443,16 @@ docker-compose up -d --build
 ```
 
 #### Cannot connect to cloud provider
+- **For remote LXD servers**: Verify Tailscale is connected (see [TAILSCALE_SETUP.md](./TAILSCALE_SETUP.md))
+  ```bash
+  bash scripts/check-tailscale.sh
+  docker exec kolaboree-backend tailscale status
+  ```
 - Verify credentials are correct
 - Check network connectivity
 - Review backend logs: `docker-compose logs backend`
 - For GCP: Ensure service account has proper permissions
-- For LXD: Verify endpoint is accessible
+- For LXD: Verify endpoint is accessible and Tailscale is connected
 
 #### Frontend can't reach backend
 - Verify `REACT_APP_API_URL` in frontend environment
@@ -471,6 +485,42 @@ docker-compose restart
 docker-compose down -v
 docker-compose up -d
 ```
+
+## 📚 Documentation
+
+Complete documentation is available:
+
+### Setup & Configuration
+- **[README.md](./README.md)** - This file, main documentation
+- **[TAILSCALE_SETUP.md](./TAILSCALE_SETUP.md)** - Tailscale VPN setup (Required for remote clouds)
+- **[CLOUD_SETUP.md](./CLOUD_SETUP.md)** - Cloud provider configuration (LXD, GCP)
+- **[QUICK_START_LXD.md](./QUICK_START_LXD.md)** - Quick guide for LXD connections
+- **.env.example** - Environment variable template
+
+### Usage & Reference
+- **[QUICK_REFERENCE.md](./QUICK_REFERENCE.md)** - Command reference and common tasks
+- **[API_TESTING.md](./API_TESTING.md)** - API testing guide
+- **[EXAMPLES.md](./EXAMPLES.md)** - API usage examples
+
+### Architecture & Development
+- **[ARCHITECTURE.md](./ARCHITECTURE.md)** - System architecture and design
+- **[TESTING.md](./TESTING.md)** - Testing guide and checklist
+- **[CONTRIBUTING.md](./CONTRIBUTING.md)** - Contribution guidelines
+- **[FEATURES.md](./FEATURES.md)** - Detailed feature documentation
+- **[PACKAGE_MANAGEMENT.md](./PACKAGE_MANAGEMENT.md)** - Package management guide
+- **[DRAG_DROP_GUIDE.md](./DRAG_DROP_GUIDE.md)** - Drag & drop UI implementation
+
+### Implementation Details
+- **[PROJECT_SUMMARY.md](./PROJECT_SUMMARY.md)** - Project overview and metrics
+- **[IMPLEMENTATION_SUMMARY.md](./IMPLEMENTATION_SUMMARY.md)** - Implementation details
+- **[TAILSCALE_IMPLEMENTATION.md](./TAILSCALE_IMPLEMENTATION.md)** - Tailscale integration details
+- **[CHANGELOG.md](./CHANGELOG.md)** - Version history
+
+### Scripts
+- **scripts/check-tailscale.sh** - Comprehensive Tailscale health check
+- **scripts/validate.sh** - Validate project structure
+- **scripts/start.sh** - Start all services
+- **scripts/stop.sh** - Stop all services
 
 ## 🤝 Contributing
 
