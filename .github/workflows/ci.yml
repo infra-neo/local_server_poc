@@ -49,5 +49,5 @@ jobs:
           export ZITI_CTRL_PORT=6262
           export ZITI_EDGE_API_PORT=1280
           
-          docker-compose -f deployment/docker-compose.yml config > /dev/null
+          docker-compose -f docker-compose.yml config > /dev/null
           echo "✓ Docker Compose configuration is valid"
