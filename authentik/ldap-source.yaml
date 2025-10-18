@@ -1,0 +1,75 @@
+version: 1
+metadata:
+  name: Kolaboree LDAP Source Configuration
+  labels:
+    blueprints.goauthentik.io/instantiate: "true"
+entries:
+  # LDAP Source for OpenLDAP integration
+  - model: authentik_sources_ldap.ldapsource
+    identifiers:
+      slug: kolaboree-ldap
+    attrs:
+      name: "Kolaboree OpenLDAP"
+      slug: "kolaboree-ldap"
+      enabled: true
+      server_uri: "ldap://openldap:389"
+      bind_cn: "cn=authentik-sync,ou=users,dc=kolaboree,dc=local"
+      bind_password: "AuthentikSyncPassword123!"
+      base_dn: "dc=kolaboree,dc=local"
+      additional_user_dn: "ou=users"
+      additional_group_dn: "ou=groups"
+      user_object_filter: "(objectClass=inetOrgPerson)"
+      group_object_filter: "(objectClass=groupOfNames)"
+      group_membership_field: "member"
+      object_uniqueness_field: "uid"
+      sync_users: true
+      sync_users_password: false
+      sync_groups: true
+      sync_parent_group: null
+      property_mappings:
+        - !KeyOf ldap_username_mapping
+        - !KeyOf ldap_email_mapping
+        - !KeyOf ldap_name_mapping
+      property_mappings_group:
+        - !KeyOf ldap_group_mapping
+
+  # Property mappings for LDAP attributes
+  - model: authentik_sources_ldap.ldappropertymapping
+    identifiers:
+      managed: "goauthentik.io/sources/ldap/default-name"
+    id: ldap_name_mapping
+    attrs:
+      name: "authentik default LDAP Mapping: Name"
+      object_field: "name"
+      expression: |
+        return ldap.get('displayName', [ldap.get('cn', [''])[0]])[0]
+
+  - model: authentik_sources_ldap.ldappropertymapping
+    identifiers:
+      managed: "goauthentik.io/sources/ldap/default-mail"
+    id: ldap_email_mapping
+    attrs:
+      name: "authentik default LDAP Mapping: mail"
+      object_field: "email"
+      expression: |
+        return ldap.get('mail', [''])[0].lower()
+
+  - model: authentik_sources_ldap.ldappropertymapping
+    identifiers:
+      managed: "goauthentik.io/sources/ldap/default-username"
+    id: ldap_username_mapping
+    attrs:
+      name: "authentik default LDAP Mapping: Username"
+      object_field: "username"
+      expression: |
+        return ldap.get('uid', [ldap.get('cn', [''])[0]])[0]
+
+  - model: authentik_sources_ldap.ldappropertymapping
+    identifiers:
+      managed: "goauthentik.io/sources/ldap/default-group-name"
+    id: ldap_group_mapping
+    attrs:
+      name: "authentik default LDAP Mapping: Group Name"
+      object_field: "name"
+      expression: |
+        return ldap.get('cn', [''])[0]

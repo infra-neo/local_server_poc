@@ -1,0 +1,185 @@
+/* Neogenesys Custom Branding for Authentik */
+
+/* Variables CSS para Neogenesys */
+:root {
+  --neo-primary: #1d4ed8;
+  --neo-secondary: #3b82f6; 
+  --neo-accent: #60a5fa;
+  --neo-background: #f8fafc;
+  --neo-surface: #ffffff;
+  --neo-dark: #0f172a;
+  --neo-slate: #1e293b;
+  --neo-text: #334155;
+  --neo-text-light: #64748b;
+  --neo-border: #cbd5e1;
+}
+
+/* Fondo de login con paisaje */
+.ak-login-container, 
+.pf-c-login {
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.8) 0%, rgba(30, 41, 59, 0.9) 100%),
+              url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 400"><defs><linearGradient id="skyGrad" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" style="stop-color:%23dbeafe"/><stop offset="50%" style="stop-color:%2393c5fd"/><stop offset="100%" style="stop-color:%2360a5fa"/></linearGradient></defs><rect width="1200" height="400" fill="url(%23skyGrad)"/><path d="M0,350 Q300,300 600,320 T1200,340 L1200,400 L0,400 Z" fill="%2322c55e" opacity="0.8"/><path d="M0,370 Q200,340 400,350 T800,360 Q1000,355 1200,365 L1200,400 L0,400 Z" fill="%2316a34a" opacity="0.9"/><circle cx="150" cy="100" r="40" fill="%23fbbf24" opacity="0.9"/><path d="M200,250 Q250,230 300,240 T400,245 Q450,242 500,248" stroke="%234ade80" stroke-width="8" fill="none" opacity="0.7"/></svg>') !important;
+  background-size: cover !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+  min-height: 100vh !important;
+}
+
+/* Tarjeta de login */
+.pf-c-login__main-body .pf-c-card {
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(10px) !important;
+  border: 1px solid rgba(203, 213, 225, 0.3) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+}
+
+/* Logo branding */
+.pf-c-brand img,
+.ak-brand img {
+  max-height: 80px !important;
+  width: auto !important;
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1)) !important;
+}
+
+/* Título de Neo génesys */
+.pf-c-title {
+  color: var(--neo-dark) !important;
+  font-weight: 600 !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* Botones primarios */
+.pf-c-button.pf-m-primary {
+  background: linear-gradient(135deg, var(--neo-primary) 0%, var(--neo-secondary) 100%) !important;
+  border: none !important;
+  border-radius: 8px !important;
+  font-weight: 500 !important;
+  transition: all 0.3s ease !important;
+  box-shadow: 0 4px 6px -1px rgba(29, 78, 216, 0.3) !important;
+}
+
+.pf-c-button.pf-m-primary:hover {
+  background: linear-gradient(135deg, var(--neo-secondary) 0%, var(--neo-accent) 100%) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 6px 12px -2px rgba(29, 78, 216, 0.4) !important;
+}
+
+/* Campos de formulario */
+.pf-c-form-control {
+  border: 2px solid var(--neo-border) !important;
+  border-radius: 8px !important;
+  transition: all 0.3s ease !important;
+  background-color: rgba(255, 255, 255, 0.9) !important;
+}
+
+.pf-c-form-control:focus {
+  border-color: var(--neo-secondary) !important;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+  background-color: var(--neo-surface) !important;
+}
+
+/* Labels */
+.pf-c-form__label {
+  color: var(--neo-text) !important;
+  font-weight: 500 !important;
+}
+
+/* Cards generales */
+.pf-c-card {
+  background-color: var(--neo-surface) !important;
+  border: 1px solid var(--neo-border) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+}
+
+/* Header personalizado */
+.pf-c-page__header {
+  background: linear-gradient(135deg, var(--neo-surface) 0%, var(--neo-background) 100%) !important;
+  border-bottom: 1px solid var(--neo-border) !important;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Sidebar */
+.pf-c-page__sidebar {
+  background-color: var(--neo-background) !important;
+  border-right: 1px solid var(--neo-border) !important;
+}
+
+/* Navegación activa */
+.pf-c-nav__link.pf-m-current {
+  background-color: var(--neo-accent) !important;
+  color: var(--neo-surface) !important;
+  border-radius: 8px !important;
+}
+
+.pf-c-nav__link:hover {
+  background-color: rgba(59, 130, 246, 0.1) !important;
+  border-radius: 8px !important;
+}
+
+/* Alertas y notificaciones */
+.pf-c-alert.pf-m-info {
+  background-color: rgba(219, 234, 254, 0.5) !important;
+  border-left: 4px solid var(--neo-secondary) !important;
+}
+
+.pf-c-alert.pf-m-success {
+  background-color: rgba(220, 252, 231, 0.5) !important;
+  border-left: 4px solid #10b981 !important;
+}
+
+/* Tablas */
+.pf-c-table th {
+  background-color: var(--neo-background) !important;
+  color: var(--neo-text) !important;
+  font-weight: 600 !important;
+}
+
+.pf-c-table tr:hover {
+  background-color: rgba(59, 130, 246, 0.05) !important;
+}
+
+/* Footer */
+.ak-footer {
+  background-color: var(--neo-slate) !important;
+  color: var(--neo-text-light) !important;
+  border-top: 1px solid var(--neo-border) !important;
+}
+
+/* Personalización adicional para pantallas pequeñas */
+@media (max-width: 768px) {
+  .ak-login-container {
+    background-size: cover !important;
+    background-position: center bottom !important;
+  }
+  
+  .pf-c-login__main-body .pf-c-card {
+    margin: 20px !important;
+    border-radius: 12px !important;
+  }
+}
+
+/* Animaciones suaves */
+* {
+  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease !important;
+}
+
+/* Elementos específicos de Authentik */
+.ak-brand {
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1)) !important;
+}
+
+.ak-login-form {
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(15px) !important;
+}
+
+/* Override para asegurar que el paisaje se vea */
+body.pf-m-redhat-font {
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.7) 0%, rgba(30, 41, 59, 0.8) 100%),
+              url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 400"><defs><linearGradient id="skyGrad" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" style="stop-color:%23dbeafe"/><stop offset="50%" style="stop-color:%2393c5fd"/><stop offset="100%" style="stop-color:%2360a5fa"/></linearGradient></defs><rect width="1200" height="400" fill="url(%23skyGrad)"/><path d="M0,350 Q300,300 600,320 T1200,340 L1200,400 L0,400 Z" fill="%2322c55e" opacity="0.8"/><path d="M0,370 Q200,340 400,350 T800,360 Q1000,355 1200,365 L1200,400 L0,400 Z" fill="%2316a34a" opacity="0.9"/><circle cx="150" cy="100" r="40" fill="%23fbbf24" opacity="0.9"/><path d="M200,250 Q250,230 300,240 T400,245 Q450,242 500,248" stroke="%234ade80" stroke-width="8" fill="none" opacity="0.7"/></svg>') !important;
+  background-size: cover !important;
+  background-attachment: fixed !important;
+  background-position: center !important;
+}

@@ -1,0 +1,55 @@
+version: 1
+metadata:
+  name: Kolaboree User and Group Setup
+  labels:
+    blueprints.goauthentik.io/instantiate: "true"
+entries:
+  # Create the global admin user (akadmin/infra@neogenesys.com)
+  - model: authentik_core.user
+    identifiers:
+      username: akadmin
+    attrs:
+      username: akadmin
+      email: infra@neogenesys.com
+      name: "Kolaboree Global Administrator"
+      is_active: true
+      is_staff: true
+      is_superuser: true
+      groups:
+        - !Find [authentik_core.group, [name, "authentik Admins"]]
+
+  # Create groups that mirror LDAP groups
+  - model: authentik_core.group
+    identifiers:
+      name: "Kolaboree Admins"
+    attrs:
+      name: "Kolaboree Admins"
+      is_superuser: false
+      parent: null
+
+  - model: authentik_core.group
+    identifiers:
+      name: "Kolaboree Users"
+    attrs:
+      name: "Kolaboree Users"
+      is_superuser: false
+      parent: null
+
+  - model: authentik_core.group
+    identifiers:
+      name: "TSPlus Users"
+    attrs:
+      name: "TSPlus Users"
+      is_superuser: false
+      parent: null
+
+  # Create tenant configuration
+  - model: authentik_tenants.tenant
+    identifiers:
+      domain: "authentik.local"
+    attrs:
+      domain: "authentik.local"
+      default: true
+      branding_title: "Kolaboree Identity Management"
+      branding_logo: "/static/dist/assets/icons/icon.png"
+      branding_favicon: "/static/dist/assets/icons/icon.png"

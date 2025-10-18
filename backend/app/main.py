@@ -5,7 +5,7 @@ Main application entry point
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.v1 import endpoints_admin, endpoints_user
+from app.api.v1 import endpoints_admin, endpoints_user, endpoints_rac, health
 
 
 app = FastAPI(
@@ -26,6 +26,8 @@ app.add_middleware(
 # Include routers
 app.include_router(endpoints_admin.router, prefix="/api/v1")
 app.include_router(endpoints_user.router, prefix="/api/v1")
+app.include_router(endpoints_rac.router, prefix="/api/v1")
+app.include_router(health.router, prefix="/api/v1")
 
 
 @app.get("/")

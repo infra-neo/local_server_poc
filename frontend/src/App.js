@@ -8,6 +8,7 @@ import AdminDashboard from './pages/AdminDashboard';
 import UserDashboard from './pages/UserDashboard';
 import UsersManagement from './pages/UsersManagement';
 import RemoteConnectionView from './pages/RemoteConnectionView';
+import RACDashboard from './pages/RACDashboard';
 
 const theme = createTheme({
   palette: {
@@ -74,6 +75,7 @@ function App() {
             <Routes>
               <Route path="/" element={<Navigate to="/user" replace />} />
               <Route path="/user" element={<UserDashboard />} />
+              <Route path="/user/rac" element={<RACDashboard />} />
               <Route path="/admin" element={<AdminDashboard />} />
               <Route path="/admin/users" element={<UsersManagement />} />
               <Route path="/admin/remote-connections" element={<RemoteConnectionView />} />

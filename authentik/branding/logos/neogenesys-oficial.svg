@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 120">
+  <!-- Logo oficial de Neogenesys -->
+  <!-- Parte izquierda del logo (formas geométricas en azul y negro) -->
+  <g>
+    <!-- Formas geométricas del logo -->
+    <polygon points="20,20 60,20 60,40 40,60 20,40" fill="#1e3a5f"/>
+    <polygon points="60,20 100,20 100,60 80,60 60,40" fill="#4a90e2"/>
+    <polygon points="20,40 40,60 40,80 20,80" fill="#1e3a5f"/>
+    <polygon points="40,60 80,60 80,80 60,80 40,80" fill="#4a90e2"/>
+  </g>
+  
+  <!-- Texto "Neogenesys" -->
+  <g>
+    <text x="120" y="45" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="#1e3a5f">Neo</text>
+    <text x="120" y="75" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="#4a90e2">genesys</text>
+    <text x="260" y="55" font-family="Arial, sans-serif" font-size="8" fill="#1e3a5f">®</text>
+  </g>
+  
+  <!-- Badge "25 Años" -->
+  <g>
+    <rect x="280" y="45" width="80" height="25" rx="12" fill="#1e3a5f"/>
+    <text x="320" y="60" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="white" text-anchor="middle">25 Años</text>
+  </g>
+</svg>

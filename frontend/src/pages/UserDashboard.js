@@ -7,11 +7,15 @@ import {
   AppBar,
   Toolbar,
   CircularProgress,
-  Alert
+  Alert,
+  Button,
+  Paper
 } from '@mui/material';
 import { motion } from 'framer-motion';
 import WorkspacesIcon from '@mui/icons-material/Workspaces';
+import ComputerIcon from '@mui/icons-material/Computer';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 import WorkspaceCard from '../components/user/WorkspaceCard';
 
@@ -21,6 +25,7 @@ const UserDashboard = () => {
   const [workspaces, setWorkspaces] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchWorkspaces();
@@ -50,19 +55,60 @@ const UserDashboard = () => {
         </Toolbar>
       </AppBar>
 
-      <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
+            <Container maxWidth="lg" sx={{ mt: 4 }}>
+        <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
           <Typography variant="h4" gutterBottom>
             My Workspaces
           </Typography>
-          <Typography variant="body1" color="textSecondary" paragraph>
-            Access your virtual machines and containers
-          </Typography>
+          <Button
+            variant="contained"
+            color="secondary"
+            startIcon={<ComputerIcon />}
+            onClick={() => navigate('/user/rac')}
+            sx={{
+              background: 'linear-gradient(45deg, #667eea 30%, #764ba2 90%)',
+              '&:hover': {
+                background: 'linear-gradient(45deg, #5a67d8 30%, #6b46c1 90%)'
+              }
+            }}
+          >
+            Remote Desktop (RAC)
+          </Button>
+        </Box>
+
+        {/* Quick Access Card for RAC */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <Paper 
+            sx={{ 
+              p: 3, 
+              mb: 4, 
+              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              color: 'white',
+              cursor: 'pointer'
+            }}
+            onClick={() => navigate('/user/rac')}
+          >
+            <Box display="flex" alignItems="center">
+              <ComputerIcon sx={{ mr: 2, fontSize: 40 }} />
+              <Box>
+                <Typography variant="h6" gutterBottom>
+                  Quick Access: Windows Remote Desktop
+                </Typography>
+                <Typography variant="body2" sx={{ opacity: 0.9 }}>
+                  Connect directly to your Windows desktop (100.95.223.18) through Guacamole
+                </Typography>
+              </Box>
+            </Box>
+          </Paper>
         </motion.div>
+
+        <Typography variant="body1" color="textSecondary" paragraph>
+          Access your virtual machines and containers
+        </Typography>
 
         {error && (
           <Alert severity="error" sx={{ mb: 2 }}>

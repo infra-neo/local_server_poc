@@ -4,3 +4,4 @@ pydantic==2.4.2
 apache-libcloud==3.8.0
 pylxd==2.3.1
 python-multipart==0.0.6
+httpx==0.25.0

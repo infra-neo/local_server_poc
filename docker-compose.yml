@@ -90,6 +90,7 @@ services:
     volumes:
       - authentik_media:/media
       - authentik_templates:/templates
+      - ./authentik/branding:/media/branding
     networks:
       - kolaboree-net
     depends_on:
@@ -115,6 +116,7 @@ services:
       - authentik_media:/media
       - authentik_templates:/templates
       - authentik_certs:/certs
+      - ./authentik/branding:/media/branding
     networks:
       - kolaboree-net
     depends_on:
@@ -184,10 +186,42 @@ services:
     environment:
       GUACD_HOSTNAME: guacd
       GUACD_PORT: 4822
-      POSTGRES_HOSTNAME: postgres
-      POSTGRES_DATABASE: ${POSTGRES_DB:-kolaboree}
-      POSTGRES_USER: ${POSTGRES_USER:-kolaboree}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-CHANGEME_SECURE_PASSWORD}
+      POSTGRESQL_HOSTNAME: postgres
+      POSTGRESQL_PORT: 5432
+      POSTGRESQL_DATABASE: ${POSTGRES_DB:-kolaboree}
+      POSTGRESQL_USER: ${POSTGRES_USER:-kolaboree}
+      POSTGRESQL_PASSWORD: ${POSTGRES_PASSWORD:-CHANGEME_SECURE_PASSWORD}
+      # Configuración adicional para asegurar la conexión JDBC
+      POSTGRESQL_SSL_MODE: disable
+      # OAuth2/OIDC Configuration para Authentik
+      OPENID_AUTHORIZATION_ENDPOINT: "https://34.68.124.46:9443/application/o/authorize/"
+      OPENID_JWKS_ENDPOINT: "https://34.68.124.46:9443/application/o/guacamole/jwks/"
+      OPENID_ISSUER: "https://34.68.124.46:9443/application/o/guacamole/"
+      OPENID_CLIENT_ID: "guacamole-rac-client"
+      OPENID_CLIENT_SECRET: "PxYxd0RTn4MFvEfCtDqtdHHFVl0WIZF5xu5IBMWpexCDQhZXlbnKMestIFpVGWCaGrEVMzmW0yxgQx10I2TEUD5qdp76tCcFOk1oGpFfUx3QZxJn26Nw5R9TOcZTOo4f"
+      OPENID_REDIRECT_URI: "http://34.68.124.46:8080/guacamole/"
+      OPENID_USERNAME_CLAIM_TYPE: "preferred_username"
+      OPENID_GROUPS_CLAIM_TYPE: "groups"
+      OPENID_SCOPE: "openid profile email groups"
+      OPENID_ENABLED: "true"
+      # Header Authentication for Forward Auth
+      HTTP_AUTH_HEADER: "X-AUTHENTIK-USERNAME"
+      HTTP_AUTH_NAME_ATTRIBUTE: "username"
+      HTTP_AUTH_EMAIL_ATTRIBUTE: "email"
+      HTTP_AUTH_AUTO_CREATE_USER: "true"
+      # LDAP Configuration for user validation
+      LDAP_HOSTNAME: "openldap"
+      LDAP_PORT: "389"
+      LDAP_ENCRYPTION_METHOD: "none"
+      LDAP_USER_BASE_DN: "ou=users,dc=kolaboree,dc=local"
+      LDAP_USERNAME_ATTRIBUTE: "uid"
+      LDAP_MEMBER_ATTRIBUTE: "member"
+      LDAP_USER_SEARCH_FILTER: "(objectClass=inetOrgPerson)"
+      LDAP_GROUP_BASE_DN: "ou=groups,dc=kolaboree,dc=local"
+      LDAP_GROUP_SEARCH_FILTER: "(objectClass=groupOfNames)"
+      LDAP_BIND_DN: "cn=admin,dc=kolaboree,dc=local"
+      LDAP_BIND_PASSWORD: "Neogenesys123!!!"
+      EXTENSION_PRIORITY: "header,openid,ldap,*"
     ports:
       - "${GUACAMOLE_PORT:-8080}:8080"
     networks:

@@ -1,0 +1,110 @@
+version: 1
+metadata:
+  name: Kolaboree TSPlus Application
+  labels:
+    blueprints.goauthentik.io/instantiate: "true"
+entries:
+  # OAuth2/OIDC Provider for TSPlus
+  - model: authentik_providers_oauth2.oauth2provider
+    identifiers:
+      name: tsplus-provider
+    attrs:
+      name: "TSPlus OIDC Provider"
+      client_id: "tsplus-client"
+      client_secret: "tsplus-secret-change-me"
+      authorization_flow: !Find [authentik_flows.flow, [slug, default-authorization-flow]]
+      property_mappings:
+        - !Find [authentik_providers_oauth2.scopemapping, [scope_name, openid]]
+        - !Find [authentik_providers_oauth2.scopemapping, [scope_name, email]]
+        - !Find [authentik_providers_oauth2.scopemapping, [scope_name, profile]]
+      redirect_uris: |
+        https://tsplus.local/auth/callback
+        https://localhost/auth/callback
+        http://localhost:8080/auth/callback
+
+  # TSPlus Application
+  - model: authentik_core.application
+    identifiers:
+      slug: tsplus
+    attrs:
+      name: "TSPlus Remote Access"
+      slug: "tsplus"
+      provider: !KeyOf tsplus-provider
+      meta_launch_url: "https://tsplus.local/"
+      meta_description: "TSPlus Remote Desktop and Application Server"
+      meta_publisher: "TSPlus"
+      policy_engine_mode: "any"
+      group: "Remote Access"
+
+  # Policy for TSPlus access (only authenticated users)
+  - model: authentik_policies_expression.expressionpolicy
+    identifiers:
+      name: tsplus-access-policy
+    attrs:
+      name: "TSPlus Access Policy"
+      expression: |
+        # Allow all authenticated users
+        return True if request.user.is_authenticated else False
+
+  # Bind policy to application
+  - model: authentik_policies.policybinding
+    identifiers:
+      target: !KeyOf tsplus
+      policy: !KeyOf tsplus-access-policy
+    attrs:
+      target: !KeyOf tsplus
+      policy: !KeyOf tsplus-access-policy
+      enabled: true
+      order: 0
+
+  # RAC Provider for direct Remote Access
+  - model: authentik_providers_rac.racprovider
+    identifiers:
+      name: tsplus-rac-provider
+    attrs:
+      name: "TSPlus RAC Provider"
+      settings:
+        endpoint:
+          host: "tsplus.local"
+          port: 3389
+          protocol: "rdp"
+        authentication:
+          username: ""
+          password: ""
+          domain: ""
+        connection_expiry: "hours=8"
+
+  # TSPlus RAC Application
+  - model: authentik_core.application
+    identifiers:
+      slug: tsplus-rac
+    attrs:
+      name: "TSPlus RDP Access"
+      slug: "tsplus-rac"
+      provider: !KeyOf tsplus-rac-provider
+      meta_launch_url: "https://authentik.local/application/o/tsplus-rac/"
+      meta_description: "Direct RDP access to TSPlus server through Authentik RAC"
+      meta_publisher: "Authentik RAC"
+      policy_engine_mode: "any"
+      group: "Remote Access"
+
+  # Policy for RAC access (restrict to TSPlus users group)
+  - model: authentik_policies_expression.expressionpolicy
+    identifiers:
+      name: tsplus-rac-policy
+    attrs:
+      name: "TSPlus RAC Access Policy"
+      expression: |
+        # Allow users in tsplus-users group
+        return user.ak_groups.filter(name="tsplus-users").exists()
+
+  # Bind RAC policy to RAC application
+  - model: authentik_policies.policybinding
+    identifiers:
+      target: !KeyOf tsplus-rac
+      policy: !KeyOf tsplus-rac-policy
+    attrs:
+      target: !KeyOf tsplus-rac
+      policy: !KeyOf tsplus-rac-policy
+      enabled: true
+      order: 0

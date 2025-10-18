@@ -1,0 +1,90 @@
+version: 1
+metadata:
+  name: Kolaboree RAC Provider - Guacamole Integration
+  labels:
+    kolaboree.com/managed: "true"
+entries:
+- identifiers:
+    name: guacamole-rac-provider
+  model: authentik_providers_rac.racprovider
+  attrs:
+    name: "Kolaboree Guacamole RAC"
+    authorization_flow: !Find [authentik_flows.flow, [slug, default-provider-authorization-implicit-consent]]
+    settings:
+      kolaboree_guacamole_url: "http://kolaboree-guacamole:8080/guacamole/"
+      kolaboree_guacamole_admin_user: "akadmin"
+      kolaboree_guacamole_admin_password: "KolaboreeAdmin2024"
+      kolaboree_connection_protocol: "rdp"
+      kolaboree_default_domain: "kolaboree.local"
+    connection_expiry: "hours=8"
+    delete_token_on_disconnect: true
+    
+- identifiers:
+    name: guacamole-rac-application
+  model: authentik_core.application
+  attrs:
+    name: "Remote Desktop Access"
+    slug: "remote-desktop"
+    provider: !Find [authentik_providers_rac.racprovider, [name, Kolaboree Guacamole RAC]]
+    meta_description: "Access remote desktops and applications through Kolaboree platform"
+    meta_publisher: "Kolaboree"
+    meta_icon: "https://raw.githubusercontent.com/kolaboree/assets/main/icons/remote-desktop.svg"
+    policy_engine_mode: "any"
+    open_in_new_tab: true
+
+- identifiers:
+    name: rac-connection-rdp-template
+  model: authentik_providers_rac.racconnection  
+  attrs:
+    name: "Windows RDP Template"
+    provider: !Find [authentik_providers_rac.racprovider, [name, Kolaboree Guacamole RAC]]
+    protocol: "rdp"
+    settings:
+      hostname: "${user.attributes.rdp_hostname}"
+      port: "${user.attributes.rdp_port|default:'3389'}"
+      username: "${user.username}"
+      password: "${user.attributes.rdp_password}"
+      domain: "${user.attributes.rdp_domain|default:'kolaboree.local'}"
+      security: "any"
+      ignore-cert: "true"
+      enable-wallpaper: "false"
+      enable-theming: "false"
+      enable-font-smoothing: "true"
+      enable-full-window-drag: "false"
+      enable-desktop-composition: "false"
+      enable-menu-animations: "false"
+      color-depth: "16"
+      resize-method: "reconnect"
+      
+- identifiers:
+    name: rac-connection-ssh-template
+  model: authentik_providers_rac.racconnection
+  attrs:
+    name: "SSH Connection Template"  
+    provider: !Find [authentik_providers_rac.racprovider, [name, Kolaboree Guacamole RAC]]
+    protocol: "ssh"
+    settings:
+      hostname: "${user.attributes.ssh_hostname}"
+      port: "${user.attributes.ssh_port|default:'22'}"
+      username: "${user.username}"
+      password: "${user.attributes.ssh_password}"
+      color-scheme: "gray-black"
+      font-name: "monospace"
+      font-size: "12"
+      enable-sftp: "true"
+      
+- identifiers:
+    name: rac-connection-vnc-template
+  model: authentik_providers_rac.racconnection
+  attrs:
+    name: "VNC Connection Template"
+    provider: !Find [authentik_providers_rac.racprovider, [name, Kolaboree Guacamole RAC]]
+    protocol: "vnc"
+    settings:
+      hostname: "${user.attributes.vnc_hostname}"
+      port: "${user.attributes.vnc_port|default:'5901'}"
+      password: "${user.attributes.vnc_password}"
+      color-depth: "16"
+      swap-red-blue: "false"
+      cursor: "remote"
+      read-only: "false"

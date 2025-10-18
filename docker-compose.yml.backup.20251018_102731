@@ -1,0 +1,268 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: kolaboree-postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-kolaboree}
+      POSTGRES_USER: ${POSTGRES_USER:-kolaboree}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-CHANGEME_SECURE_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - kolaboree-net
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-kolaboree}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: kolaboree-redis
+    command: redis-server --requirepass ${REDIS_PASSWORD:-CHANGEME_REDIS_PASSWORD}
+    volumes:
+      - redis_data:/data
+    networks:
+      - kolaboree-net
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # OpenLDAP Directory
+  openldap:
+    image: osixia/openldap:1.5.0
+    container_name: kolaboree-ldap
+    environment:
+      LDAP_ORGANISATION: "Kolaboree"
+      LDAP_DOMAIN: ${LDAP_ROOT:-kolaboree.local}
+      LDAP_ADMIN_PASSWORD: ${LDAP_ADMIN_PASSWORD:-CHANGEME_LDAP_PASSWORD}
+      LDAP_CONFIG_PASSWORD: ${LDAP_ADMIN_PASSWORD:-CHANGEME_LDAP_PASSWORD}
+      LDAP_READONLY_USER: "false"
+      LDAP_RFC2307BIS_SCHEMA: "false"
+      LDAP_BACKEND: "mdb"
+      LDAP_TLS: "true"
+      LDAP_TLS_CRT_FILENAME: "ldap.crt"
+      LDAP_TLS_KEY_FILENAME: "ldap.key"
+      LDAP_TLS_DH_PARAM_FILENAME: "dhparam.pem"
+      LDAP_TLS_CA_CRT_FILENAME: "ca.crt"
+      LDAP_TLS_ENFORCE: "false"
+      LDAP_TLS_CIPHER_SUITE: "SECURE256:+SECURE128:-VERS-TLS-ALL:+VERS-TLS1.2:-RSA:-DHE-DSS:-CAMELLIA-128-CBC:-CAMELLIA-256-CBC"
+      LDAP_TLS_VERIFY_CLIENT: "demand"
+      LDAP_REPLICATION: "false"
+      KEEP_EXISTING_CONFIG: "false"
+      LDAP_REMOVE_CONFIG_AFTER_SETUP: "true"
+      LDAP_SSL_HELPER_PREFIX: "ldap"
+    volumes:
+      - ldap_data:/var/lib/ldap
+      - ldap_config:/etc/ldap/slapd.d
+    networks:
+      - kolaboree-net
+    restart: unless-stopped
+    ports:
+      - "${LDAP_PORT:-389}:389"
+      - "${LDAPS_PORT:-636}:636"
+
+  # Authentik Server
+  authentik-server:
+    image: ghcr.io/goauthentik/server:latest
+    container_name: kolaboree-authentik-server
+    command: server
+    environment:
+      AUTHENTIK_REDIS__HOST: redis
+      AUTHENTIK_REDIS__PASSWORD: ${REDIS_PASSWORD:-CHANGEME_REDIS_PASSWORD}
+      AUTHENTIK_POSTGRESQL__HOST: postgres
+      AUTHENTIK_POSTGRESQL__NAME: ${POSTGRES_DB:-kolaboree}
+      AUTHENTIK_POSTGRESQL__USER: ${POSTGRES_USER:-kolaboree}
+      AUTHENTIK_POSTGRESQL__PASSWORD: ${POSTGRES_PASSWORD:-CHANGEME_SECURE_PASSWORD}
+      AUTHENTIK_SECRET_KEY: ${AUTHENTIK_SECRET_KEY:-CHANGEME_AUTHENTIK_SECRET_KEY_MIN_50_CHARS}
+      AUTHENTIK_ERROR_REPORTING__ENABLED: ${AUTHENTIK_ERROR_REPORTING:-false}
+    ports:
+      - "${AUTHENTIK_PORT_HTTP:-9000}:9000"
+      - "${AUTHENTIK_PORT_HTTPS:-9443}:9443"
+    volumes:
+      - authentik_media:/media
+      - authentik_templates:/templates
+      - ./authentik/branding:/media/branding
+    networks:
+      - kolaboree-net
+    depends_on:
+      - postgres
+      - redis
+    restart: unless-stopped
+
+  # Authentik Worker
+  authentik-worker:
+    image: ghcr.io/goauthentik/server:latest
+    container_name: kolaboree-authentik-worker
+    command: worker
+    environment:
+      AUTHENTIK_REDIS__HOST: redis
+      AUTHENTIK_REDIS__PASSWORD: ${REDIS_PASSWORD:-CHANGEME_REDIS_PASSWORD}
+      AUTHENTIK_POSTGRESQL__HOST: postgres
+      AUTHENTIK_POSTGRESQL__NAME: ${POSTGRES_DB:-kolaboree}
+      AUTHENTIK_POSTGRESQL__USER: ${POSTGRES_USER:-kolaboree}
+      AUTHENTIK_POSTGRESQL__PASSWORD: ${POSTGRES_PASSWORD:-CHANGEME_SECURE_PASSWORD}
+      AUTHENTIK_SECRET_KEY: ${AUTHENTIK_SECRET_KEY:-CHANGEME_AUTHENTIK_SECRET_KEY_MIN_50_CHARS}
+      AUTHENTIK_ERROR_REPORTING__ENABLED: ${AUTHENTIK_ERROR_REPORTING:-false}
+    volumes:
+      - authentik_media:/media
+      - authentik_templates:/templates
+      - authentik_certs:/certs
+      - ./authentik/branding:/media/branding
+    networks:
+      - kolaboree-net
+    depends_on:
+      - postgres
+      - redis
+    restart: unless-stopped
+
+  # Backend API (FastAPI)
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: kolaboree-backend
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-kolaboree}:${POSTGRES_PASSWORD:-CHANGEME_SECURE_PASSWORD}@postgres:5432/${POSTGRES_DB:-kolaboree}
+      REDIS_URL: redis://:${REDIS_PASSWORD:-CHANGEME_REDIS_PASSWORD}@redis:6379
+      ENABLE_TAILSCALE: ${ENABLE_TAILSCALE:-false}
+      TAILSCALE_AUTH_KEY: ${TAILSCALE_AUTH_KEY:-}
+    ports:
+      - "${BACKEND_PORT:-8000}:8000"
+    volumes:
+      - ./backend/app:/app/app
+      - tailscale_state:/var/lib/tailscale
+    networks:
+      - kolaboree-net
+    depends_on:
+      - postgres
+      - redis
+    restart: unless-stopped
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    sysctls:
+      - net.ipv4.ip_forward=1
+      - net.ipv6.conf.all.forwarding=1
+
+  # Frontend (React)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: kolaboree-frontend
+    environment:
+      REACT_APP_API_URL: http://localhost:${BACKEND_PORT:-8000}
+    ports:
+      - "${FRONTEND_PORT:-3000}:80"
+    networks:
+      - kolaboree-net
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+  # Guacamole Daemon (guacd)
+  guacd:
+    image: guacamole/guacd:latest
+    container_name: kolaboree-guacd
+    networks:
+      - kolaboree-net
+    restart: unless-stopped
+
+  # Guacamole Web Application
+  guacamole:
+    image: guacamole/guacamole:latest
+    container_name: kolaboree-guacamole
+    environment:
+      GUACD_HOSTNAME: guacd
+      GUACD_PORT: 4822
+      POSTGRESQL_HOSTNAME: postgres
+      POSTGRESQL_PORT: 5432
+      POSTGRESQL_DATABASE: ${POSTGRES_DB:-kolaboree}
+      POSTGRESQL_USER: ${POSTGRES_USER:-kolaboree}
+      POSTGRESQL_PASSWORD: ${POSTGRES_PASSWORD:-CHANGEME_SECURE_PASSWORD}
+      # Configuración adicional para asegurar la conexión JDBC
+      POSTGRESQL_SSL_MODE: disable
+      # OAuth2/OIDC Configuration para Authentik
+      OPENID_AUTHORIZATION_ENDPOINT: "https://34.68.124.46:9443/application/o/authorize/"
+      OPENID_JWKS_ENDPOINT: "https://34.68.124.46:9443/application/o/guacamole/jwks/"
+      OPENID_ISSUER: "https://34.68.124.46:9443/application/o/guacamole/"
+      OPENID_CLIENT_ID: "guacamole-rac-client"
+      OPENID_CLIENT_SECRET: "PxYxd0RTn4MFvEfCtDqtdHHFVl0WIZF5xu5IBMWpexCDQhZXlbnKMestIFpVGWCaGrEVMzmW0yxgQx10I2TEUD5qdp76tCcFOk1oGpFfUx3QZxJn26Nw5R9TOcZTOo4f"
+      OPENID_REDIRECT_URI: "http://34.68.124.46:8080/guacamole/"
+      OPENID_USERNAME_CLAIM_TYPE: "preferred_username"
+      OPENID_GROUPS_CLAIM_TYPE: "groups"
+      OPENID_SCOPE: "openid profile email groups"
+      OPENID_ENABLED: "true"
+      # LDAP Configuration for user validation
+      LDAP_HOSTNAME: "openldap"
+      LDAP_PORT: "389"
+      LDAP_ENCRYPTION_METHOD: "none"
+      LDAP_USER_BASE_DN: "ou=users,dc=kolaboree,dc=local"
+      LDAP_USERNAME_ATTRIBUTE: "uid"
+      LDAP_MEMBER_ATTRIBUTE: "member"
+      LDAP_USER_SEARCH_FILTER: "(objectClass=inetOrgPerson)"
+      LDAP_GROUP_BASE_DN: "ou=groups,dc=kolaboree,dc=local"
+      LDAP_GROUP_SEARCH_FILTER: "(objectClass=groupOfNames)"
+      LDAP_BIND_DN: "cn=admin,dc=kolaboree,dc=local"
+      LDAP_BIND_PASSWORD: "${LDAP_ADMIN_PASSWORD:-CHANGEME_LDAP_PASSWORD}"
+      EXTENSION_PRIORITY: "*,ldap,openid"
+    ports:
+      - "${GUACAMOLE_PORT:-8080}:8080"
+    networks:
+      - kolaboree-net
+    depends_on:
+      - postgres
+      - guacd
+    restart: unless-stopped
+
+  # Nginx Reverse Proxy
+  nginx:
+    image: nginx:alpine
+    container_name: kolaboree-nginx
+    ports:
+      - "${NGINX_PORT:-80}:80"
+      - "${NGINX_HTTPS_PORT:-443}:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+    networks:
+      - kolaboree-net
+    depends_on:
+      - frontend
+      - backend
+      - authentik-server
+      - guacamole
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  ldap_data:
+    driver: local
+  ldap_config:
+    driver: local
+  authentik_media:
+    driver: local
+  authentik_templates:
+    driver: local
+  authentik_certs:
+    driver: local
+  tailscale_state:
+    driver: local
+
+networks:
+  kolaboree-net:
+    driver: bridge

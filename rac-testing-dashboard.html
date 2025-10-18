@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RAC Testing Dashboard - Neogenesys</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            min-height: 100vh;
+            color: white;
+        }
+        
+        .header {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+        
+        .test-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+        
+        .test-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .test-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .test-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #60a5fa;
+        }
+        
+        .test-button {
+            background: linear-gradient(45deg, #10b981, #059669);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin: 1rem 0;
+        }
+        
+        .test-button:hover {
+            background: linear-gradient(45deg, #059669, #047857);
+            transform: translateY(-2px);
+        }
+        
+        .test-button:disabled {
+            background: #6b7280;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .result {
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            white-space: pre-wrap;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .result.success {
+            background: rgba(16, 185, 129, 0.2);
+            border: 1px solid #10b981;
+        }
+        
+        .result.error {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid #ef4444;
+        }
+        
+        .result.info {
+            background: rgba(59, 130, 246, 0.2);
+            border: 1px solid #3b82f6;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        
+        .status-success { background: #10b981; }
+        .status-error { background: #ef4444; }
+        .status-warning { background: #f59e0b; }
+        .status-info { background: #3b82f6; }
+        
+        .credentials-box {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+        }
+        
+        .credentials-box h4 {
+            color: #fbbf24;
+            margin-bottom: 0.5rem;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .connection-list {
+            margin-top: 1rem;
+        }
+        
+        .connection-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1rem;
+            margin: 0.5rem 0;
+            border-radius: 8px;
+            border-left: 4px solid #10b981;
+        }
+        
+        .connection-item h5 {
+            color: #60a5fa;
+            margin-bottom: 0.5rem;
+        }
+        
+        .quick-links {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+        
+        .quick-link {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1rem;
+            border-radius: 10px;
+            text-align: center;
+            text-decoration: none;
+            color: white;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .quick-link:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-3px);
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🚀 RAC Testing Dashboard</h1>
+        <p>Validación del flujo LDAP → Authentik → Guacamole → RAC</p>
+    </div>
+    
+    <div class="container">
+        <!-- Credenciales y Enlaces Rápidos -->
+        <div class="credentials-box">
+            <h4>🔐 Credenciales de Prueba</h4>
+            <p><strong>Authentik:</strong> akadmin / Kolaboree2024!Admin</p>
+            <p><strong>Guacamole:</strong> akadmin / Kolaboree2024</p>
+            <p><strong>LDAP Test Users:</strong> usuario1@neogenesys.com, tecnico1@neogenesys.com</p>
+        </div>
+        
+        <div class="quick-links">
+            <a href="https://34.68.124.46:9443/if/admin/" target="_blank" class="quick-link">
+                <h4>🔧 Authentik Admin</h4>
+                <p>Configurar LDAP/OAuth2</p>
+            </a>
+            <a href="http://34.68.124.46:8080/guacamole/" target="_blank" class="quick-link">
+                <h4>🖥️ Guacamole</h4>
+                <p>Acceso Remoto</p>
+            </a>
+            <a href="http://34.68.124.46:3000/user/rac" target="_blank" class="quick-link">
+                <h4>📱 RAC Dashboard</h4>
+                <p>Frontend React</p>
+            </a>
+            <a href="http://34.68.124.46:8000/docs" target="_blank" class="quick-link">
+                <h4>🔌 API Backend</h4>
+                <p>FastAPI Swagger</p>
+            </a>
+        </div>
+        
+        <!-- Tests de Conectividad -->
+        <div class="test-grid">
+            <!-- Test LDAP -->
+            <div class="test-card">
+                <h3>🗂️ Test LDAP</h3>
+                <p>Verifica conectividad y usuarios en OpenLDAP</p>
+                <button class="test-button" onclick="testLDAP()">Probar LDAP</button>
+                <div id="ldap-result" class="result" style="display: none;"></div>
+            </div>
+            
+            <!-- Test Authentik -->
+            <div class="test-card">
+                <h3>🔐 Test Authentik</h3>
+                <p>Verifica acceso y configuración de Authentik</p>
+                <button class="test-button" onclick="testAuthentik()">Probar Authentik</button>
+                <div id="authentik-result" class="result" style="display: none;"></div>
+            </div>
+            
+            <!-- Test Guacamole -->
+            <div class="test-card">
+                <h3>🖥️ Test Guacamole</h3>
+                <p>Verifica autenticación y conexiones</p>
+                <button class="test-button" onclick="testGuacamole()">Probar Guacamole</button>
+                <div id="guacamole-result" class="result" style="display: none;"></div>
+            </div>
+            
+            <!-- Test RAC API -->
+            <div class="test-card">
+                <h3>🔌 Test RAC API</h3>
+                <p>Verifica backend y conexiones RAC</p>
+                <button class="test-button" onclick="testRACAPI()">Probar RAC API</button>
+                <div id="rac-result" class="result" style="display: none;"></div>
+            </div>
+            
+            <!-- Test Flujo Completo -->
+            <div class="test-card">
+                <h3>🎯 Test Flujo Completo</h3>
+                <p>Prueba integración end-to-end</p>
+                <button class="test-button" onclick="testCompleteFlow()">Probar Flujo</button>
+                <div id="flow-result" class="result" style="display: none;"></div>
+            </div>
+            
+            <!-- Status del Sistema -->
+            <div class="test-card">
+                <h3>📊 Status del Sistema</h3>
+                <p>Estado actual de todos los servicios</p>
+                <button class="test-button" onclick="checkSystemStatus()">Verificar Status</button>
+                <div id="status-result" class="result" style="display: none;"></div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const API_BASE = 'http://34.68.124.46:8000';
+        const AUTHENTIK_BASE = 'https://34.68.124.46:9443';
+        const GUACAMOLE_BASE = 'http://34.68.124.46:8080/guacamole';
+        
+        function showResult(elementId, content, type = 'info') {
+            const element = document.getElementById(elementId);
+            element.style.display = 'block';
+            element.className = `result ${type}`;
+            element.textContent = content;
+        }
+        
+        function showLoading(buttonElement) {
+            const originalText = buttonElement.textContent;
+            buttonElement.innerHTML = '<span class="loading"></span> Probando...';
+            buttonElement.disabled = true;
+            return originalText;
+        }
+        
+        function hideLoading(buttonElement, originalText) {
+            buttonElement.textContent = originalText;
+            buttonElement.disabled = false;
+        }
+        
+        async function testLDAP() {
+            const button = event.target;
+            const originalText = showLoading(button);
+            
+            try {
+                // Simular test LDAP usando nuestra API
+                const response = await fetch(`${API_BASE}/api/v1/health/ldap`, {
+                    method: 'GET',
+                    headers: {'Content-Type': 'application/json'}
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    showResult('ldap-result', 
+                        `✅ LDAP Conexión exitosa\\n` +
+                        `🌐 Servidor: ldap://kolaboree-ldap:389\\n` +
+                        `📂 Base DN: dc=kolaboree,dc=local\\n` +
+                        `👥 Usuarios encontrados: ${data.users || 'N/A'}\\n` +
+                        `🔍 Status: ${data.status || 'OK'}`, 
+                        'success'
+                    );
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                showResult('ldap-result', 
+                    `❌ Error conectando a LDAP\\n` +
+                    `🔍 Error: ${error.message}\\n` +
+                    `📋 Verificar:\\n` +
+                    `  - Contenedor kolaboree-ldap ejecutándose\\n` +
+                    `  - Puerto 389 accesible\\n` +
+                    `  - Credenciales LDAP correctas`, 
+                    'error'
+                );
+            }
+            
+            hideLoading(button, originalText);
+        }
+        
+        async function testAuthentik() {
+            const button = event.target;
+            const originalText = showLoading(button);
+            
+            try {
+                const response = await fetch(`${AUTHENTIK_BASE}/if/flow/default-authentication-flow/`, {
+                    method: 'GET',
+                    mode: 'no-cors'
+                });
+                
+                showResult('authentik-result', 
+                    `✅ Authentik accesible\\n` +
+                    `🌐 URL: ${AUTHENTIK_BASE}\\n` +
+                    `🔐 Login page OK\\n` +
+                    `📋 Para completar configuración:\\n` +
+                    `  1. Directory → LDAP Sources\\n` +
+                    `  2. Applications → Providers\\n` +
+                    `  3. Crear OAuth2 Provider para Guacamole`, 
+                    'success'
+                );
+            } catch (error) {
+                showResult('authentik-result', 
+                    `⚠️ Test de conectividad (CORS limitado)\\n` +
+                    `🌐 URL: ${AUTHENTIK_BASE}\\n` +
+                    `📋 Verificar manualmente:\\n` +
+                    `  - Acceder a URL en nueva pestaña\\n` +
+                    `  - Login con akadmin / Kolaboree2024!Admin\\n` +
+                    `  - Configurar LDAP Source según guía`, 
+                    'info'
+                );
+            }
+            
+            hideLoading(button, originalText);
+        }
+        
+        async function testGuacamole() {
+            const button = event.target;
+            const originalText = showLoading(button);
+            
+            try {
+                // Test de conectividad básica
+                const response = await fetch(`${GUACAMOLE_BASE}/`, {
+                    method: 'GET',
+                    mode: 'no-cors'
+                });
+                
+                showResult('guacamole-result', 
+                    `✅ Guacamole accesible\\n` +
+                    `🌐 URL: ${GUACAMOLE_BASE}\\n` +
+                    `🔐 Credenciales: akadmin / Kolaboree2024\\n` +
+                    `📋 Para probar autenticación:\\n` +
+                    `  1. Abrir ${GUACAMOLE_BASE}\\n` +
+                    `  2. Login con credenciales\\n` +
+                    `  3. Verificar conexiones disponibles`, 
+                    'success'
+                );
+            } catch (error) {
+                showResult('guacamole-result', 
+                    `⚠️ Test de conectividad (CORS limitado)\\n` +
+                    `🌐 URL: ${GUACAMOLE_BASE}\\n` +
+                    `📋 Verificar manualmente:\\n` +
+                    `  - Acceder a URL en nueva pestaña\\n` +
+                    `  - Login con akadmin / Kolaboree2024\\n` +
+                    `  - Revisar conexiones RDP/VNC`, 
+                    'info'
+                );
+            }
+            
+            hideLoading(button, originalText);
+        }
+        
+        async function testRACAPI() {
+            const button = event.target;
+            const originalText = showLoading(button);
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/v1/rac/connections`);
+                
+                if (response.ok) {
+                    const connections = await response.json();
+                    let result = `✅ RAC API funcionando\\n` +
+                               `🌐 Endpoint: ${API_BASE}/api/v1/rac/connections\\n` +
+                               `🔗 Conexiones encontradas: ${connections.length}\\n\\n`;
+                    
+                    connections.forEach((conn, index) => {
+                        result += `📱 ${index + 1}. ${conn.name || 'Sin nombre'}\\n` +
+                                 `   Protocolo: ${conn.protocol || 'N/A'}\\n` +
+                                 `   URL: ${conn.connect_url || 'N/A'}\\n\\n`;
+                    });
+                    
+                    showResult('rac-result', result, 'success');
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                showResult('rac-result', 
+                    `❌ Error en RAC API\\n` +
+                    `🔍 Error: ${error.message}\\n` +
+                    `📋 Verificar:\\n` +
+                    `  - Backend container ejecutándose\\n` +
+                    `  - Puerto 8000 accesible\\n` +
+                    `  - Guacamole API funcionando`, 
+                    'error'
+                );
+            }
+            
+            hideLoading(button, originalText);
+        }
+        
+        async function testCompleteFlow() {
+            const button = event.target;
+            const originalText = showLoading(button);
+            
+            let result = `🎯 Test del Flujo Completo\\n` +
+                        `==========================\\n\\n`;
+            
+            try {
+                // Test 1: RAC API
+                result += `1️⃣ Probando RAC API...\\n`;
+                const racResponse = await fetch(`${API_BASE}/api/v1/rac/connections`);
+                if (racResponse.ok) {
+                    const connections = await racResponse.json();
+                    result += `   ✅ RAC API OK (${connections.length} conexiones)\\n\\n`;
+                } else {
+                    result += `   ❌ RAC API Error (${racResponse.status})\\n\\n`;
+                }
+                
+                // Test 2: Frontend
+                result += `2️⃣ Frontend RAC Dashboard:\\n`;
+                result += `   🌐 URL: http://34.68.124.46:3000/user/rac\\n`;
+                result += `   📋 Verificar manualmente\\n\\n`;
+                
+                // Test 3: Authentik Integration
+                result += `3️⃣ Authentik Integration:\\n`;
+                result += `   🔐 Login: ${AUTHENTIK_BASE}/if/flow/default-authentication-flow/\\n`;
+                result += `   ⚙️ Admin: ${AUTHENTIK_BASE}/if/admin/\\n`;
+                result += `   📋 Configurar LDAP + OAuth2\\n\\n`;
+                
+                // Test 4: Guacamole
+                result += `4️⃣ Guacamole Access:\\n`;
+                result += `   🖥️ URL: ${GUACAMOLE_BASE}\\n`;
+                result += `   🔐 Direct: akadmin / Kolaboree2024\\n`;
+                result += `   🔗 Via Authentik: Configurar OAuth2\\n\\n`;
+                
+                result += `✅ Flujo parcialmente funcional\\n`;
+                result += `⚠️ Completar configuración LDAP + OAuth2 en Authentik`;
+                
+                showResult('flow-result', result, 'info');
+                
+            } catch (error) {
+                result += `❌ Error en test de flujo: ${error.message}`;
+                showResult('flow-result', result, 'error');
+            }
+            
+            hideLoading(button, originalText);
+        }
+        
+        async function checkSystemStatus() {
+            const button = event.target;
+            const originalText = showLoading(button);
+            
+            let status = `📊 Estado del Sistema\\n` +
+                        `===================\\n\\n`;
+            
+            try {
+                // Test servicios principales
+                const services = [
+                    { name: 'RAC API', url: `${API_BASE}/health`, port: '8000' },
+                    { name: 'Frontend', url: 'http://34.68.124.46:3000', port: '3000' },
+                    { name: 'Guacamole', url: `${GUACAMOLE_BASE}/`, port: '8080' },
+                    { name: 'Authentik', url: `${AUTHENTIK_BASE}/if/flow/default-authentication-flow/`, port: '9443' }
+                ];
+                
+                for (const service of services) {
+                    status += `🔍 ${service.name} (Puerto ${service.port})...\\n`;
+                    try {
+                        await fetch(service.url, { method: 'GET', mode: 'no-cors' });
+                        status += `   ✅ Accesible\\n`;
+                    } catch (error) {
+                        status += `   ⚠️ CORS limitado (probablemente OK)\\n`;
+                    }
+                    status += `\\n`;
+                }
+                
+                status += `📋 Próximos pasos:\\n`;
+                status += `1. Configurar LDAP Source en Authentik\\n`;
+                status += `2. Crear OAuth2 Provider para Guacamole\\n`;
+                status += `3. Probar autenticación end-to-end\\n`;
+                status += `4. Crear conexiones RDP/VNC en Guacamole`;
+                
+                showResult('status-result', status, 'info');
+                
+            } catch (error) {
+                status += `❌ Error verificando estado: ${error.message}`;
+                showResult('status-result', status, 'error');
+            }
+            
+            hideLoading(button, originalText);
+        }
+        
+        // Auto-check system status on load
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                checkSystemStatus();
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

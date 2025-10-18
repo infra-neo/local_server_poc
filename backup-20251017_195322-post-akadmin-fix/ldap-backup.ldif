@@ -1,0 +1,258 @@
+dn: dc=kolaboree,dc=local
+objectClass: top
+objectClass: dcObject
+objectClass: organization
+o: Kolaboree
+dc: kolaboree
+structuralObjectClass: organization
+entryUUID: 1fee95ac-3fda-1040-8d00-a531fef1d2ee
+creatorsName: cn=admin,dc=kolaboree,dc=local
+createTimestamp: 20251017192045Z
+entryCSN: 20251017192045.563180Z#000000#000#000000
+modifiersName: cn=admin,dc=kolaboree,dc=local
+modifyTimestamp: 20251017192045Z
+
+dn: ou=users,dc=kolaboree,dc=local
+objectClass: organizationalUnit
+ou: users
+description: Usuarios del sistema Kolaboree
+structuralObjectClass: organizationalUnit
+entryUUID: 87250e04-3fda-1040-9928-9b8de9ba3c23
+creatorsName: cn=admin,dc=kolaboree,dc=local
+createTimestamp: 20251017192338Z
+entryCSN: 20251017192338.725493Z#000000#000#000000
+modifiersName: cn=admin,dc=kolaboree,dc=local
+modifyTimestamp: 20251017192338Z
+
+dn: ou=groups,dc=kolaboree,dc=local
+objectClass: organizationalUnit
+ou: groups
+description: Grupos del sistema Kolaboree
+structuralObjectClass: organizationalUnit
+entryUUID: 87259de2-3fda-1040-9929-9b8de9ba3c23
+creatorsName: cn=admin,dc=kolaboree,dc=local
+createTimestamp: 20251017192338Z
+entryCSN: 20251017192338.729176Z#000000#000#000000
+modifiersName: cn=admin,dc=kolaboree,dc=local
+modifyTimestamp: 20251017192338Z
+
+dn: cn=users,ou=groups,dc=kolaboree,dc=local
+objectClass: groupOfNames
+cn: users
+description: Usuarios regulares del sistema
+member: uid=usuario1,ou=users,dc=kolaboree,dc=local
+member: uid=usuario2,ou=users,dc=kolaboree,dc=local
+structuralObjectClass: groupOfNames
+entryUUID: 872602fa-3fda-1040-992a-9b8de9ba3c23
+creatorsName: cn=admin,dc=kolaboree,dc=local
+createTimestamp: 20251017192338Z
+entryCSN: 20251017192338.731765Z#000000#000#000000
+modifiersName: cn=admin,dc=kolaboree,dc=local
+modifyTimestamp: 20251017192338Z
+
+dn: cn=admintecnico,ou=groups,dc=kolaboree,dc=local
+objectClass: groupOfNames
+cn: admintecnico
+description:: QWRtaW5pc3RyYWRvcmVzIHTDqWNuaWNvcyBkZWwgc2lzdGVtYQ==
+member: uid=tecnico1,ou=users,dc=kolaboree,dc=local
+member: uid=tecnico2,ou=users,dc=kolaboree,dc=local
+structuralObjectClass: groupOfNames
+entryUUID: 872655ac-3fda-1040-992b-9b8de9ba3c23
+creatorsName: cn=admin,dc=kolaboree,dc=local
+createTimestamp: 20251017192338Z
+entryCSN: 20251017192338.733884Z#000000#000#000000
+modifiersName: cn=admin,dc=kolaboree,dc=local
+modifyTimestamp: 20251017192338Z
+
+dn: cn=globaladmin,ou=groups,dc=kolaboree,dc=local
+objectClass: groupOfNames
+cn: globaladmin
+description: Administradores globales del sistema
+member: uid=infra,ou=users,dc=kolaboree,dc=local
+structuralObjectClass: groupOfNames
+entryUUID: 87268cca-3fda-1040-992c-9b8de9ba3c23
+creatorsName: cn=admin,dc=kolaboree,dc=local
+createTimestamp: 20251017192338Z
+entryCSN: 20251017192338.735294Z#000000#000#000000
+modifiersName: cn=admin,dc=kolaboree,dc=local
+modifyTimestamp: 20251017192338Z
+
+dn: uid=usuario1,ou=users,dc=kolaboree,dc=local
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: usuario1
+cn: Usuario Uno
+sn: Uno
+givenName: Usuario
+displayName: Usuario Uno
+mail: usuario1@neogenesys.com
+uidNumber: 2001
+gidNumber: 2001
+homeDirectory: /home/usuario1
+loginShell: /bin/bash
+userPassword:: e1NTSEF9bjBMT0xlZFZIWlZyNFhSa0c5dUZzSjV0WXowWmxZK2I=
+structuralObjectClass: inetOrgPerson
+entryUUID: 8726c19a-3fda-1040-992d-9b8de9ba3c23
+creatorsName: cn=admin,dc=kolaboree,dc=local
+createTimestamp: 20251017192338Z
+entryCSN: 20251017192338.736635Z#000000#000#000000
+modifiersName: cn=admin,dc=kolaboree,dc=local
+modifyTimestamp: 20251017192338Z
+
+dn: uid=usuario2,ou=users,dc=kolaboree,dc=local
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: usuario2
+cn: Usuario Dos
+sn: Dos
+givenName: Usuario
+displayName: Usuario Dos
+mail: usuario2@neogenesys.com
+uidNumber: 2002
+gidNumber: 2001
+homeDirectory: /home/usuario2
+loginShell: /bin/bash
+userPassword:: e1NTSEF9bjBMT0xlZFZIWlZyNFhSa0c5dUZzSjV0WXowWmxZK2I=
+structuralObjectClass: inetOrgPerson
+entryUUID: 87272554-3fda-1040-992e-9b8de9ba3c23
+creatorsName: cn=admin,dc=kolaboree,dc=local
+createTimestamp: 20251017192338Z
+entryCSN: 20251017192338.739199Z#000000#000#000000
+modifiersName: cn=admin,dc=kolaboree,dc=local
+modifyTimestamp: 20251017192338Z
+
+dn: uid=tecnico1,ou=users,dc=kolaboree,dc=local
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: tecnico1
+cn:: VMOpY25pY28gVW5v
+sn: Uno
+givenName:: VMOpY25pY28=
+displayName:: VMOpY25pY28gVW5v
+mail: tecnico1@neogenesys.com
+uidNumber: 3001
+gidNumber: 3001
+homeDirectory: /home/tecnico1
+loginShell: /bin/bash
+userPassword:: e1NTSEF9N2M2TlhPU0pOcVdFNE85YlZFZjd6Sjh0WXowWmxZK2M=
+structuralObjectClass: inetOrgPerson
+entryUUID: 872786d4-3fda-1040-992f-9b8de9ba3c23
+creatorsName: cn=admin,dc=kolaboree,dc=local
+createTimestamp: 20251017192338Z
+entryCSN: 20251017192338.741695Z#000000#000#000000
+modifiersName: cn=admin,dc=kolaboree,dc=local
+modifyTimestamp: 20251017192338Z
+
+dn: uid=tecnico2,ou=users,dc=kolaboree,dc=local
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: tecnico2
+cn:: VMOpY25pY28gRG9z
+sn: Dos
+givenName:: VMOpY25pY28=
+displayName:: VMOpY25pY28gRG9z
+mail: tecnico2@neogenesys.com
+uidNumber: 3002
+gidNumber: 3001
+homeDirectory: /home/tecnico2
+loginShell: /bin/bash
+userPassword:: e1NTSEF9N2M2TlhPU0pOcVdFNE85YlZFZjd6Sjh0WXowWmxZK2M=
+structuralObjectClass: inetOrgPerson
+entryUUID: 8727ea7a-3fda-1040-9930-9b8de9ba3c23
+creatorsName: cn=admin,dc=kolaboree,dc=local
+createTimestamp: 20251017192338Z
+entryCSN: 20251017192338.744245Z#000000#000#000000
+modifiersName: cn=admin,dc=kolaboree,dc=local
+modifyTimestamp: 20251017192338Z
+
+dn: uid=infra,ou=users,dc=kolaboree,dc=local
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: infra
+cn: Infra Administrator
+sn: Administrator
+givenName: Infra
+displayName: Infra Administrator
+mail: infra@neogenesys.com
+uidNumber: 1001
+gidNumber: 1001
+homeDirectory: /home/infra
+loginShell: /bin/bash
+userPassword:: e1NTSEF9SzlmWHJWS3pZN05rVzFPOFFFNXpKNXRZejBabFkrZA==
+structuralObjectClass: inetOrgPerson
+entryUUID: 87281f54-3fda-1040-9931-9b8de9ba3c23
+creatorsName: cn=admin,dc=kolaboree,dc=local
+createTimestamp: 20251017192338Z
+entryCSN: 20251017192338.745599Z#000000#000#000000
+modifiersName: cn=admin,dc=kolaboree,dc=local
+modifyTimestamp: 20251017192338Z
+
+dn: cn=usergroup,ou=groups,dc=kolaboree,dc=local
+objectClass: posixGroup
+cn: usergroup
+gidNumber: 2001
+description: Grupo POSIX para usuarios regulares
+structuralObjectClass: posixGroup
+entryUUID: 87287ed6-3fda-1040-9932-9b8de9ba3c23
+creatorsName: cn=admin,dc=kolaboree,dc=local
+createTimestamp: 20251017192338Z
+entryCSN: 20251017192338.748045Z#000000#000#000000
+modifiersName: cn=admin,dc=kolaboree,dc=local
+modifyTimestamp: 20251017192338Z
+
+dn: cn=techgroup,ou=groups,dc=kolaboree,dc=local
+objectClass: posixGroup
+cn: techgroup
+gidNumber: 3001
+description:: R3J1cG8gUE9TSVggcGFyYSB0w6ljbmljb3M=
+structuralObjectClass: posixGroup
+entryUUID: 8728b2fc-3fda-1040-9933-9b8de9ba3c23
+creatorsName: cn=admin,dc=kolaboree,dc=local
+createTimestamp: 20251017192338Z
+entryCSN: 20251017192338.749380Z#000000#000#000000
+modifiersName: cn=admin,dc=kolaboree,dc=local
+modifyTimestamp: 20251017192338Z
+
+dn: cn=admingroup,ou=groups,dc=kolaboree,dc=local
+objectClass: posixGroup
+cn: admingroup
+gidNumber: 1001
+description: Grupo POSIX para administradores globales
+structuralObjectClass: posixGroup
+entryUUID: 8728e736-3fda-1040-9934-9b8de9ba3c23
+creatorsName: cn=admin,dc=kolaboree,dc=local
+createTimestamp: 20251017192338Z
+entryCSN: 20251017192338.750717Z#000000#000#000000
+modifiersName: cn=admin,dc=kolaboree,dc=local
+modifyTimestamp: 20251017192338Z
+
+dn: uid=akadmin,ou=users,dc=kolaboree,dc=local
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: akadmin
+cn: AK Admin
+sn: Administrator
+givenName: AK
+displayName: AK Global Administrator
+mail: infra@neogenesys.com
+uidNumber: 1002
+gidNumber: 1001
+homeDirectory: /home/akadmin
+loginShell: /bin/bash
+userPassword:: e1NTSEF9UWFHRkdjSHEybkl5dklFZGZvc0hVTXZLSXN6eHRqbkQ=
+description: AK Global Administrator with full access
+telephoneNumber: +1-555-0002
+structuralObjectClass: inetOrgPerson
+entryUUID: 95027750-3fda-1040-9935-9b8de9ba3c23
+creatorsName: cn=admin,dc=kolaboree,dc=local
+createTimestamp: 20251017192401Z
+entryCSN: 20251017192401.986916Z#000000#000#000000
+modifiersName: cn=admin,dc=kolaboree,dc=local
+modifyTimestamp: 20251017192401Z
+

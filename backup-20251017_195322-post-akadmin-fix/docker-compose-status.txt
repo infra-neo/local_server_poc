@@ -1,0 +1,12 @@
+NAME                         IMAGE                               COMMAND                  SERVICE            CREATED          STATUS                    PORTS
+kolaboree-authentik-server   ghcr.io/goauthentik/server:latest   "dumb-init -- ak ser…"   authentik-server   22 minutes ago   Up 22 minutes (healthy)   0.0.0.0:9000->9000/tcp, [::]:9000->9000/tcp, 0.0.0.0:9443->9443/tcp, [::]:9443->9443/tcp
+kolaboree-authentik-worker   ghcr.io/goauthentik/server:latest   "dumb-init -- ak wor…"   authentik-worker   22 minutes ago   Up 22 minutes (healthy)   
+kolaboree-backend            kolaboree-ng-backend                "/docker-entrypoint.…"   backend            41 minutes ago   Up 41 minutes             0.0.0.0:8000->8000/tcp, [::]:8000->8000/tcp
+kolaboree-frontend           kolaboree-ng-frontend               "/docker-entrypoint.…"   frontend           41 minutes ago   Up 41 minutes             0.0.0.0:3000->80/tcp, [::]:3000->80/tcp
+kolaboree-guacamole          guacamole/guacamole:latest          "/opt/guacamole/bin/…"   guacamole          41 minutes ago   Up 41 minutes             0.0.0.0:8080->8080/tcp, [::]:8080->8080/tcp
+kolaboree-guacd              guacamole/guacd:latest              "/opt/guacamole/entr…"   guacd              41 minutes ago   Up 41 minutes (healthy)   4822/tcp
+kolaboree-ldap               osixia/openldap:1.5.0               "/container/tool/run"    openldap           33 minutes ago   Up 33 minutes             0.0.0.0:389->389/tcp, [::]:389->389/tcp, 0.0.0.0:636->636/tcp, [::]:636->636/tcp
+kolaboree-nginx              nginx:alpine                        "/docker-entrypoint.…"   nginx              41 minutes ago   Up 41 minutes             0.0.0.0:80->80/tcp, [::]:80->80/tcp, 0.0.0.0:443->443/tcp, [::]:443->443/tcp
+kolaboree-postgres           postgres:15-alpine                  "docker-entrypoint.s…"   postgres           22 minutes ago   Up 22 minutes (healthy)   5432/tcp
+kolaboree-redis              redis:7-alpine                      "docker-entrypoint.s…"   redis              41 minutes ago   Up 41 minutes (healthy)   6379/tcp
+kolaboree-tailscale-admin    nginx:alpine                        "/docker-entrypoint.…"   tailscale-admin    2 hours ago      Up 2 hours                80/tcp
