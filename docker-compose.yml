@@ -250,6 +250,19 @@ services:
       - guacamole
     restart: unless-stopped
 
+  # Tailscale Admin Dashboard
+  tailscale-admin:
+    image: nginx:alpine
+    container_name: kolaboree-tailscale-admin
+    volumes:
+      - ./index.html:/usr/share/nginx/html/index.html:ro
+      - ./index.html:/usr/share/nginx/html/rac-testing-dashboard.html:ro
+    ports:
+      - "8888:80"
+    networks:
+      - kolaboree-net
+    restart: unless-stopped
+
 volumes:
   postgres_data:
     driver: local
