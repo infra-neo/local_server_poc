@@ -183,3 +183,46 @@ body.pf-m-redhat-font {
   background-attachment: fixed !important;
   background-position: center !important;
 }
+
+/* Ocultar o personalizar el texto "Desarrollado por authentik" */
+.pf-c-login__footer,
+.ak-footer,
+.ak-footer-links,
+footer[data-ouia-component-type="PF5/Footer"],
+.pf-l-bullseye__item .pf-c-login__footer,
+.pf-c-login__main-footer-band,
+.ak-login-footer {
+  display: none !important;
+}
+
+/* Ocultar específicamente enlaces de "Powered by" */
+a[href*="goauthentik.io"],
+a[href*="authentik"],
+.ak-footer-copyright,
+.pf-c-login__footer-links,
+[data-testid="ak-footer-link"] {
+  display: none !important;
+}
+
+/* Alternativa: Cambiar el texto por uno personalizado */
+.ak-footer-text::after {
+  content: "Desarrollado por Neogenesys" !important;
+  color: var(--neo-text-light) !important;
+  font-size: 0.85rem !important;
+}
+
+.ak-footer-text {
+  font-size: 0 !important;
+}
+
+/* Ocultar texto específico que contenga "authentik" */
+*:contains("Desarrollado por authentik"),
+*:contains("Powered by authentik"),
+*:contains("authentik") {
+  display: none !important;
+}
+
+/* Personalizar footer si existe */
+.pf-c-login__main-footer-band-item {
+  display: none !important;
+}

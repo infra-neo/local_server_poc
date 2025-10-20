@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <defs>
+    <style>
+      .logo-white { fill: #ffffff; }
+    </style>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="32" height="32" fill="#000000"/>
+  
+  <!-- Simplified Logo Shape for Favicon -->
+  <path class="logo-white" d="M8,12 L12,8 L16,12 L16,16 L12,20 L8,16 Z"/>
+  <path class="logo-white" d="M12,8 L16,4 L20,8 L20,12 L16,16 L12,12 Z"/>
+  
+  <!-- Small N -->
+  <text class="logo-white" x="22" y="28" font-size="10" font-family="Arial" font-weight="bold">N</text>
+</svg>

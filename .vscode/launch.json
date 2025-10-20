@@ -1,0 +1,55 @@
+{
+    "configurations": [
+        {
+            "name": "Containers: Python - General",
+            "type": "docker",
+            "request": "launch",
+            "preLaunchTask": "docker-run: debug",
+            "python": {
+                "pathMappings": [
+                    {
+                        "localRoot": "${workspaceFolder}",
+                        "remoteRoot": "/app"
+                    }
+                ],
+                "projectType": "general"
+            }
+        },
+        {
+            "name": "Debug Docker Compose",
+            "type": "docker-compose",
+            "request": "launch",
+            "dockerCompose": {
+                "files": [
+                    "${workspaceFolder}/docker-compose.yml"
+                ],
+                "services": [
+                    "${input:serviceName}"
+                ],
+                "action": "debugSingleContainer"
+            }
+        },
+        {
+            "name": "Containers: Python - General",
+            "type": "docker",
+            "request": "launch",
+            "preLaunchTask": "docker-run: debug",
+            "python": {
+                "pathMappings": [
+                    {
+                        "localRoot": "${workspaceFolder}",
+                        "remoteRoot": "/app"
+                    }
+                ],
+                "projectType": "general"
+            }
+        }
+    ],
+    "inputs": [
+        {
+            "type": "promptString",
+            "id": "serviceName",
+            "description": "Which service to debug? (e.g., backend, frontend, ldap)"
+        }
+    ]
+}

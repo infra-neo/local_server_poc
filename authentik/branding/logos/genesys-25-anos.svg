@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600">
+  <defs>
+    <style>
+      .text-genesys { fill: #1e90ff; font-family: Arial, sans-serif; font-weight: bold; }
+      .text-25-anos { fill: #2c3e50; font-family: Arial, sans-serif; font-weight: bold; }
+      .logo-shape { fill: #1e90ff; }
+    </style>
+  </defs>
+  
+  <!-- Logo Shape -->
+  <path class="logo-shape" d="M200,230 L280,230 L280,300 L240,340 L200,300 Z"/>
+  
+  <!-- Text génesys -->
+  <text class="text-genesys" x="295" y="390" font-size="120">génesys</text>
+  <circle class="text-genesys" cx="700" cy="385" r="8"/>
+  
+  <!-- Text 25 Años -->
+  <text class="text-25-anos" x="437" y="500" font-size="70">25 Años</text>
+</svg>

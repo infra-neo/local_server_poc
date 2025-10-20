@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" style="background-color: #000;">
+  <defs>
+    <style>
+      .text-neogenesys { fill: #ffffff; font-family: Arial, sans-serif; font-weight: bold; }
+      .logo-white { fill: #ffffff; }
+    </style>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="400" height="400" fill="#000000"/>
+  
+  <!-- Logo Shape White -->
+  <path class="logo-white" d="M120,150 L160,110 L200,150 L200,190 L160,230 L120,190 Z"/>
+  <path class="logo-white" d="M160,110 L200,70 L240,110 L240,150 L200,190 L160,150 Z"/>
+  
+  <!-- Text Neogénesys -->
+  <text class="text-neogenesys" x="80" y="280" font-size="40">Neogénesys</text>
+  <circle class="text-neogenesys" cx="360" cy="275" r="3"/>
+</svg>
