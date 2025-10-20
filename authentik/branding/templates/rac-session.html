@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neogenesys RAC - Escritorio Remoto</title>
+    <link rel="icon" href="/static/dist/assets/icons/neogenesys-favicon.svg" type="image/svg+xml">
+    
+    <!-- CSS personalizado de Neogenesys -->
+    <link rel="stylesheet" href="/media/branding/static/neogenesys.css">
+    
+    <style>
+        /* Estilos específicos para RAC */
+        body {
+            margin: 0;
+            padding: 0;
+            background: #1e293b;
+            font-family: Arial, sans-serif;
+            overflow: hidden;
+        }
+        
+        .rac-loading {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            text-align: center;
+            z-index: 1000;
+        }
+        
+        .rac-loading h2 {
+            color: #60a5fa;
+            margin-bottom: 20px;
+        }
+        
+        .rac-loading .spinner {
+            border: 4px solid rgba(96, 165, 250, 0.3);
+            border-top: 4px solid #60a5fa;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Ocultar elementos innecesarios */
+        .ak-footer,
+        .pf-c-login__footer,
+        [data-testid="ak-footer-link"] {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- Pantalla de carga -->
+    <div class="rac-loading" id="rac-loading">
+        <h2>🚀 Conectando a Neogenesys RAC</h2>
+        <div class="spinner"></div>
+        <p>Estableciendo conexión segura...</p>
+        <p style="font-size: 12px; opacity: 0.7;">Powered by Neogenesys - 25 Años de innovación</p>
+    </div>
+
+    <!-- Container principal para RAC -->
+    <div id="rac-container"></div>
+
+    <!-- Scripts -->
+    <script>
+        // Esperar a que la página se cargue completamente
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🎮 Inicializando Neogenesys RAC HTML5...');
+            
+            // Detectar cuando el canvas de RAC esté presente
+            function waitForRAC() {
+                const canvas = document.querySelector('canvas');
+                const racContainer = document.querySelector('[data-rac-connection]');
+                
+                if (canvas || racContainer || document.querySelector('.guac-display')) {
+                    console.log('✅ Sesión RAC detectada, cargando menú de opciones...');
+                    
+                    // Ocultar pantalla de carga
+                    const loading = document.getElementById('rac-loading');
+                    if (loading) {
+                        loading.style.display = 'none';
+                    }
+                    
+                    // Cargar menú de opciones RAC
+                    loadRACOptionsMenu();
+                } else {
+                    // Seguir intentando cada 500ms
+                    setTimeout(waitForRAC, 500);
+                }
+            }
+            
+            // Iniciar detección
+            setTimeout(waitForRAC, 1000);
+        });
+
+        // Función para cargar el menú de opciones
+        function loadRACOptionsMenu() {
+            // Cargar script del menú
+            const script = document.createElement('script');
+            script.src = '/media/branding/static/rac-options-menu.js';
+            script.onload = function() {
+                console.log('✅ Menú de opciones RAC cargado exitosamente');
+            };
+            script.onerror = function() {
+                console.warn('⚠️ No se pudo cargar el menú de opciones RAC');
+            };
+            document.head.appendChild(script);
+        }
+
+        // Manejo de eventos globales
+        window.addEventListener('beforeunload', function(e) {
+            // Confirmar cierre de sesión
+            const confirmationMessage = '¿Está seguro de que desea cerrar la sesión RAC?';
+            e.returnValue = confirmationMessage;
+            return confirmationMessage;
+        });
+
+        // Prevenir F5 accidental
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'F5' || (e.ctrlKey && e.key === 'r')) {
+                e.preventDefault();
+                if (confirm('¿Desea actualizar la sesión? Esto puede interrumpir el trabajo actual.')) {
+                    window.location.reload();
+                }
+            }
+        });
+
+        // Personalización adicional para Neogenesys
+        setTimeout(function() {
+            // Cambiar título de la página
+            document.title = 'Neogenesys RAC - Escritorio Remoto HTML5';
+            
+            // Agregar información de sesión
+            console.log('🏢 Neogenesys RAC HTML5 - 25 Años de innovación tecnológica');
+            console.log('🔗 Sesión iniciada:', new Date().toLocaleString());
+        }, 2000);
+    </script>
+</body>
+</html>

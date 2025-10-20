@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 400">
+  <defs>
+    <style>
+      .text-neo { fill: #2c3e50; font-family: Arial, sans-serif; font-weight: bold; }
+      .text-genesys { fill: #1e90ff; font-family: Arial, sans-serif; font-weight: bold; }
+      .text-25-anos { fill: #ffffff; background: #2c3e50; font-family: Arial, sans-serif; font-weight: bold; }
+      .logo-dark { fill: #2c3e50; }
+      .logo-blue { fill: #1e90ff; }
+      .badge-bg { fill: #2c3e50; }
+    </style>
+  </defs>
+  
+  <!-- Logo Shapes -->
+  <path class="logo-dark" d="M40,120 L80,80 L120,120 L120,160 L80,200 L40,160 Z"/>
+  <path class="logo-blue" d="M80,80 L120,40 L160,80 L160,120 L120,160 L80,120 Z"/>
+  
+  <!-- Text Neo -->
+  <text class="text-neo" x="180" y="120" font-size="60">Neo</text>
+  
+  <!-- Text génesys -->
+  <text class="text-genesys" x="180" y="180" font-size="60">génesys</text>
+  <circle class="text-genesys" cx="520" cy="175" r="4"/>
+  
+  <!-- Badge 25 Años -->
+  <rect class="badge-bg" x="540" y="140" width="140" height="40" rx="20"/>
+  <text class="text-25-anos" x="610" y="165" font-size="24" text-anchor="middle">25 Años</text>
+</svg>

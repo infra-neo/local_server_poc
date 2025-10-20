@@ -1,0 +1,111 @@
+# Docker Compose - Configuración corregida para Authentik + RAC HTML5
+
+  # Authentik Server - CONFIGURACIÓN CORREGIDA
+  authentik-server:
+    image: ghcr.io/goauthentik/server:latest
+    container_name: kolaboree-authentik-server
+    command: server
+    environment:
+      # Configuración básica de base de datos
+      AUTHENTIK_REDIS__HOST: redis
+      AUTHENTIK_REDIS__PASSWORD: ${REDIS_PASSWORD:-CHANGEME_REDIS_PASSWORD}
+      AUTHENTIK_POSTGRESQL__HOST: postgres
+      AUTHENTIK_POSTGRESQL__NAME: ${POSTGRES_DB:-kolaboree}
+      AUTHENTIK_POSTGRESQL__USER: ${POSTGRES_USER:-kolaboree}
+      AUTHENTIK_POSTGRESQL__PASSWORD: ${POSTGRES_PASSWORD:-CHANGEME_SECURE_PASSWORD}
+      AUTHENTIK_SECRET_KEY: ${AUTHENTIK_SECRET_KEY:-CHANGEME_AUTHENTIK_SECRET_KEY_MIN_50_CHARS}
+      AUTHENTIK_ERROR_REPORTING__ENABLED: ${AUTHENTIK_ERROR_REPORTING:-false}
+      
+      # ========================================================================
+      # CONFIGURACIÓN CRÍTICA PARA RAC HTML5 Y WEBSOCKETS
+      # ========================================================================
+      # Dominio público (CRÍTICO)
+      AUTHENTIK_HOST: gate.kappa4.com
+      AUTHENTIK_PUBLIC_URL: https://gate.kappa4.com
+      
+      # CORS para RAC HTML5
+      AUTHENTIK_WEB__ALLOWED_ORIGINS: https://gate.kappa4.com
+      AUTHENTIK_CORS__ALLOWED_ORIGINS: https://gate.kappa4.com
+      
+      # Configuración específica para RAC
+      AUTHENTIK_RAC__BASE_URL: https://gate.kappa4.com
+      AUTHENTIK_RAC__WEBSOCKET_URL: wss://gate.kappa4.com/ws/
+      
+      # Headers de seguridad
+      AUTHENTIK_WEB__X_FRAME_OPTIONS: SAMEORIGIN
+      AUTHENTIK_WEB__CSP_FRAME_SRC: https://gate.kappa4.com
+      
+      # Logging para debug
+      AUTHENTIK_LOG_LEVEL: info
+      AUTHENTIK_WEB__LOG_LEVEL: info
+      
+      # Trust proxy headers (NGINX)
+      AUTHENTIK_WEB__TRUST_X_FORWARDED_FOR: true
+      AUTHENTIK_WEB__SECURE_PROXY_SSL_HEADER: HTTP_X_FORWARDED_PROTO,https
+    
+    # SOLO Puerto interno - NGINX maneja el SSL
+    expose:
+      - "9000"
+      - "9443"
+    
+    volumes:
+      - authentik_media:/media
+      - authentik_templates:/templates
+      - ./authentik/branding:/media/branding
+    
+    networks:
+      - kolaboree-net
+    
+    depends_on:
+      - postgres
+      - redis
+    
+    restart: unless-stopped
+    
+    # Labels para mejor identificación
+    labels:
+      - "traefik.enable=false"
+      - "nginx.proxy=true"
+
+  # Authentik Worker - CONFIGURACIÓN CORREGIDA
+  authentik-worker:
+    image: ghcr.io/goauthentik/server:latest
+    container_name: kolaboree-authentik-worker
+    command: worker
+    environment:
+      # Configuración básica idéntica al server
+      AUTHENTIK_REDIS__HOST: redis
+      AUTHENTIK_REDIS__PASSWORD: ${REDIS_PASSWORD:-CHANGEME_REDIS_PASSWORD}
+      AUTHENTIK_POSTGRESQL__HOST: postgres
+      AUTHENTIK_POSTGRESQL__NAME: ${POSTGRES_DB:-kolaboree}
+      AUTHENTIK_POSTGRESQL__USER: ${POSTGRES_USER:-kolaboree}
+      AUTHENTIK_POSTGRESQL__PASSWORD: ${POSTGRES_PASSWORD:-CHANGEME_SECURE_PASSWORD}
+      AUTHENTIK_SECRET_KEY: ${AUTHENTIK_SECRET_KEY:-CHANGEME_AUTHENTIK_SECRET_KEY_MIN_50_CHARS}
+      AUTHENTIK_ERROR_REPORTING__ENABLED: ${AUTHENTIK_ERROR_REPORTING:-false}
+      
+      # Mismo dominio público para consistency
+      AUTHENTIK_HOST: gate.kappa4.com
+      AUTHENTIK_PUBLIC_URL: https://gate.kappa4.com
+      AUTHENTIK_LOG_LEVEL: info
+    
+    volumes:
+      - authentik_media:/media
+      - authentik_templates:/templates
+      - authentik_certs:/certs
+      - ./authentik/branding:/media/branding
+    
+    networks:
+      - kolaboree-net
+    
+    depends_on:
+      - postgres
+      - redis
+    
+    restart: unless-stopped
+
+# NOTAS IMPORTANTES:
+# 1. Remover puertos públicos de Authentik (9000, 9443) del docker-compose
+# 2. NGINX debe ser el único punto de entrada en 443
+# 3. Todas las URLs de RAC deben apuntar a gate.kappa4.com
+# 4. WebSockets funcionarán a través de /ws/ en NGINX
+# 5. Verificar que el certificado SSL esté configurado en NGINX

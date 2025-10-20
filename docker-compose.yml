@@ -84,9 +84,18 @@ services:
       AUTHENTIK_POSTGRESQL__PASSWORD: ${POSTGRES_PASSWORD:-CHANGEME_SECURE_PASSWORD}
       AUTHENTIK_SECRET_KEY: ${AUTHENTIK_SECRET_KEY:-CHANGEME_AUTHENTIK_SECRET_KEY_MIN_50_CHARS}
       AUTHENTIK_ERROR_REPORTING__ENABLED: ${AUTHENTIK_ERROR_REPORTING:-false}
-    ports:
-      - "${AUTHENTIK_PORT_HTTP:-9000}:9000"
-      - "${AUTHENTIK_PORT_HTTPS:-9443}:9443"
+      
+      # Configuración crítica para RAC HTML5 y WebSockets
+      AUTHENTIK_HOST: gate.kappa4.com
+      AUTHENTIK_PUBLIC_URL: https://gate.kappa4.com
+      AUTHENTIK_WEB__ALLOWED_ORIGINS: https://gate.kappa4.com
+      AUTHENTIK_CORS__ALLOWED_ORIGINS: https://gate.kappa4.com
+      AUTHENTIK_WEB__TRUST_X_FORWARDED_FOR: true
+      AUTHENTIK_WEB__SECURE_PROXY_SSL_HEADER: HTTP_X_FORWARDED_PROTO,https
+      AUTHENTIK_LOG_LEVEL: info
+    expose:
+      - "9000"
+      - "9443"
     volumes:
       - authentik_media:/media
       - authentik_templates:/templates
@@ -112,6 +121,11 @@ services:
       AUTHENTIK_POSTGRESQL__PASSWORD: ${POSTGRES_PASSWORD:-CHANGEME_SECURE_PASSWORD}
       AUTHENTIK_SECRET_KEY: ${AUTHENTIK_SECRET_KEY:-CHANGEME_AUTHENTIK_SECRET_KEY_MIN_50_CHARS}
       AUTHENTIK_ERROR_REPORTING__ENABLED: ${AUTHENTIK_ERROR_REPORTING:-false}
+      
+      # Misma configuración que el server para consistencia
+      AUTHENTIK_HOST: gate.kappa4.com
+      AUTHENTIK_PUBLIC_URL: https://gate.kappa4.com
+      AUTHENTIK_LOG_LEVEL: info
     volumes:
       - authentik_media:/media
       - authentik_templates:/templates
@@ -241,6 +255,7 @@ services:
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
     networks:
       - kolaboree-net
     depends_on:
@@ -248,6 +263,36 @@ services:
       - backend
       - authentik-server
       - guacamole
+    restart: unless-stopped
+
+  # Authentik Outpost (RAC Provider) - Con acceso a red Tailscale
+  authentik-outpost:
+    image: ghcr.io/goauthentik/rac:latest
+    container_name: kolaboree-authentik-outpost
+    environment:
+      AUTHENTIK_HOST: http://172.22.0.9:9000
+      AUTHENTIK_HOST_BROWSER: https://gate.kappa4.com
+      AUTHENTIK_TOKEN: FJVTBKwhy66m0ZTRqhWZCnOfczGHPlz3gCHABYNYcNa55q5r8fxf6sSCvCQF
+      AUTHENTIK_INSECURE: true
+      AUTHENTIK_LOG_LEVEL: info
+      AUTHENTIK_DISABLE_STARTUP_ANALYTICS: true
+    network_mode: host
+    depends_on:
+      - authentik-server
+    restart: unless-stopped
+    # No ports needed - comunicación interna via docker network
+
+  # Tailscale Admin Dashboard
+  tailscale-admin:
+    image: nginx:alpine
+    container_name: kolaboree-tailscale-admin
+    volumes:
+      - ./index.html:/usr/share/nginx/html/index.html:ro
+      - ./index.html:/usr/share/nginx/html/rac-testing-dashboard.html:ro
+    ports:
+      - "8888:80"
+    networks:
+      - kolaboree-net
     restart: unless-stopped
 
 volumes:
