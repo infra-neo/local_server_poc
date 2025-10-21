@@ -1,0 +1,19 @@
+pipeline { 
+    agent any 
+    stages { 
+        stage('Build') { 
+            steps { 
+                script { 
+                    // Validate sensitive data 
+                    sh './scripts/validate-secrets.sh'
+                    // Security scan 
+                    sh 'mvn verify'
+                    // Run tests 
+                    sh 'mvn test'
+                    // Publish artifacts to Nexus 
+                    sh 'mvn deploy'
+                }
+            }
+        }
+    }
+}
