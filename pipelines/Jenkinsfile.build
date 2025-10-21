@@ -1,19 +1,120 @@
-pipeline { 
-    agent any 
-    stages { 
-        stage('Build') { 
-            steps { 
-                script { 
-                    // Validate sensitive data 
-                    sh './scripts/validate-secrets.sh'
-                    // Security scan 
-                    sh 'mvn verify'
-                    // Run tests 
-                    sh 'mvn test'
-                    // Publish artifacts to Nexus 
-                    sh 'mvn deploy'
+pipeline {
+    agent {
+        docker {
+            image 'maven:3.8.5-jdk-8'
+            args '-v /root/.m2:/root/.m2'
+        }
+    }
+    
+    environment {
+        NEXUS_URL = credentials('nexus-url')
+        NEXUS_CREDENTIALS = credentials('nexus-credentials')
+        SONAR_TOKEN = credentials('sonar-token')
+        APP_VERSION = "${env.BUILD_NUMBER}"
+    }
+    
+    parameters {
+        choice(name: 'ENVIRONMENT', choices: ['dev', 'qa', 'staging', 'production'], description: 'Target environment')
+        choice(name: 'JDK_VERSION', choices: ['1.7', '1.8'], description: 'Java version')
+        booleanParam(name: 'SKIP_TESTS', defaultValue: false, description: 'Skip unit tests')
+        booleanParam(name: 'SECURITY_SCAN', defaultValue: true, description: 'Run security scan')
+    }
+    
+    stages {
+        stage('🔍 Pre-build Validation') {
+            steps {
+                script {
+                    echo "🔍 Starting pre-build validations..."
+                    sh 'mvn validate'
+                    echo "✅ POM validation successful"
                 }
             }
+        }
+        
+        stage('🔒 Security Scan') {
+            when {
+                expression { params.SECURITY_SCAN == true }
+            }
+            steps {
+                script {
+                    echo "🔒 Running security scans..."
+                    sh './scripts/validate-secrets.sh'
+                    sh 'mvn org.owasp:dependency-check-maven:check'
+                    echo "✅ Security scan completed"
+                }
+            }
+        }
+        
+        stage('📦 Dependencies Resolution') {
+            steps {
+                script {
+                    echo "📦 Resolving dependencies from Nexus..."
+                    sh 'mkdir -p ~/.m2 && cp config/nexus/settings.xml ~/.m2/settings.xml'
+                    sh 'mvn dependency:resolve'
+                    echo "✅ Dependencies resolved successfully"
+                }
+            }
+        }
+        
+        stage('🏗️ Build') {
+            steps {
+                script {
+                    echo "🏗️ Building application..."
+                    def mvnCmd = "mvn clean package -P${params.ENVIRONMENT}"
+                    if (params.SKIP_TESTS) {
+                        mvnCmd += " -DskipTests"
+                    }
+                    sh mvnCmd
+                    echo "✅ Build completed successfully"
+                }
+            }
+        }
+        
+        stage('🧪 Unit Tests') {
+            when {
+                expression { params.SKIP_TESTS == false }
+            }
+            steps {
+                script {
+                    echo "🧪 Running unit tests..."
+                    sh 'mvn test'
+                    junit '**/target/surefire-reports/*.xml'
+                    echo "✅ Unit tests completed"
+                }
+            }
+        }
+        
+        stage('📊 Code Quality Analysis') {
+            steps {
+                script {
+                    echo "📊 Running code quality analysis..."
+                    sh 'mvn sonar:sonar -Dsonar.host.url=http://sonarqube:9000 -Dsonar.login=${SONAR_TOKEN}'
+                    echo "✅ Code quality analysis completed"
+                }
+            }
+        }
+        
+        stage('📤 Publish to Nexus') {
+            steps {
+                script {
+                    echo "📤 Publishing artifacts to Nexus..."
+                    def repository = params.ENVIRONMENT == 'production' ? 'libs-release' : 'libs-snapshot'
+                    sh "mvn deploy -DskipTests -DaltDeploymentRepository=nexus::default::${NEXUS_URL}/repository/${repository}"
+                    echo "✅ Artifacts published to ${repository}"
+                }
+            }
+        }
+    }
+    
+    post {
+        success {
+            echo "✅ Build completed successfully!"
+        }
+        failure {
+            echo "❌ Build failed!"
+        }
+        always {
+            cleanWs()
         }
     }
 }
