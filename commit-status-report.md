@@ -8,15 +8,17 @@
 
 
 - **Rama / Branch:** `copilot/check-last-commit-status`
-- **Commit Hash:** `5a434a258832caf623ae7d95e5c073b22706c2fa`
+- **Commit Hash:** `060618df0934a8feb8940a574e7e7f0b8eed4304`
 - **Autor / Author:** copilot-swe-agent[bot]
-- **Fecha / Date:** 2025-10-23 06:05:30 +0000
-- **Mensaje / Message:** Initial plan
+- **Fecha / Date:** 2025-10-23 06:11:30 +0000
+- **Mensaje / Message:** Add comprehensive commit status validation script and report
 
 ### 📂 Archivos Modificados / Modified Files
 
 ```
-
+ commit-status-report.md        | 120 ++++++++++
+ scripts/check-commit-status.sh | 518 +++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 638 insertions(+)
 ```
 
 ---
@@ -36,13 +38,7 @@
 ### ✅ Docker Compose
 
 - **Estado / Status:** Configuración válida / Valid configuration
-- **Advertencias / Warnings:** 1
-
-
-#### ⚠️ Advertencias / Warnings:
-```
-time="2025-10-23T06:11:08Z" level=warning msg="/home/runner/work/local_server_poc/local_server_poc/docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
-```
+- **Advertencias / Warnings:** 0
 
 ### ✅ Frontend (package.json)
 
@@ -80,7 +76,7 @@ time="2025-10-23T06:11:08Z" level=warning msg="/home/runner/work/local_server_po
 | Métrica / Metric | Valor / Value |
 |------------------|---------------|
 | ✅ Verificaciones exitosas / Successful checks | 127 |
-| ⚠️ Advertencias / Warnings | 2 |
+| ⚠️ Advertencias / Warnings | 1 |
 | ❌ Errores / Errors | 0 |
 
 ### 🎯 Estado General / Overall Status
@@ -100,9 +96,9 @@ The last commit is in good state. No critical errors found in:
 - Frontend configuration
 
 
-**Nota:** Se encontraron 2 advertencia(s) que deben revisarse pero no bloquean el despliegue.
+**Nota:** Se encontraron 1 advertencia(s) que deben revisarse pero no bloquean el despliegue.
 
-**Note:** Found 2 warning(s) that should be reviewed but don't block deployment.
+**Note:** Found 1 warning(s) that should be reviewed but don't block deployment.
 
 
 ---
@@ -116,5 +112,5 @@ The last commit is in good state. No critical errors found in:
 ---
 
 *Reporte generado automáticamente / Report generated automatically*  
-*Fecha / Date:* 2025-10-23 06:11:08 UTC
+*Fecha / Date:* 2025-10-23 06:12:15 UTC
 
