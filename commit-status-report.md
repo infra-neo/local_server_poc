@@ -8,17 +8,18 @@
 
 
 - **Rama / Branch:** `copilot/check-last-commit-status`
-- **Commit Hash:** `545590bcd5ad02bbbd6c89793cc5be2db7401762`
+- **Commit Hash:** `1545709ce2e4716a48a2661caf843ea09a11e32a`
 - **Autor / Author:** copilot-swe-agent[bot]
-- **Fecha / Date:** 2025-10-23 06:12:37 +0000
-- **Mensaje / Message:** Fix docker-compose.yml: remove obsolete version attribute
+- **Fecha / Date:** 2025-10-23 06:14:25 +0000
+- **Mensaje / Message:** Add comprehensive commit validation documentation and update README
 
 ### 📂 Archivos Modificados / Modified Files
 
 ```
- commit-status-report.md | 26 +++++++++++---------------
- docker-compose.yml      |  2 --
- 2 files changed, 11 insertions(+), 17 deletions(-)
+ COMMIT_VALIDATION.md    | 251 ++++++++++++++++++++++++++++++++++++++++++++++++
+ README.md               |   4 +
+ commit-status-report.md |  14 +--
+ 3 files changed, 262 insertions(+), 7 deletions(-)
 ```
 
 ---
@@ -112,5 +113,5 @@ The last commit is in good state. No critical errors found in:
 ---
 
 *Reporte generado automáticamente / Report generated automatically*  
-*Fecha / Date:* 2025-10-23 06:12:51 UTC
+*Fecha / Date:* 2025-10-23 06:14:39 UTC
 
