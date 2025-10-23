@@ -517,10 +517,14 @@ Complete documentation is available:
 - **[CHANGELOG.md](./CHANGELOG.md)** - Version history
 
 ### Scripts
+- **scripts/check-commit-status.sh** - Comprehensive commit status validation ⭐ NEW
 - **scripts/check-tailscale.sh** - Comprehensive Tailscale health check
 - **scripts/validate.sh** - Validate project structure
 - **scripts/start.sh** - Start all services
 - **scripts/stop.sh** - Stop all services
+
+### Quality Assurance
+- **[COMMIT_VALIDATION.md](./COMMIT_VALIDATION.md)** - Commit validation guide ⭐ NEW
 
 ## 🤝 Contributing
 
