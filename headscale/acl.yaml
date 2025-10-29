@@ -1,0 +1,91 @@
+# Headscale ACL Policy
+# Control de acceso para la red perimetral
+
+# Groups
+groups:
+  group:admin:
+    - admin@hs.kappa4.com
+  
+  group:services:
+    - authentik.hs.kappa4.com
+    - ldap.hs.kappa4.com
+    - guacamole.hs.kappa4.com
+    - postgres.hs.kappa4.com
+  
+  group:endpoints:
+    - tsplus.hs.kappa4.com
+
+# Hosts
+hosts:
+  authentik: 100.64.0.10
+  ldap: 100.64.0.11
+  guacamole: 100.64.0.12
+  postgres: 100.64.0.13
+  tsplus: 201.151.150.226
+
+# Access Control Lists
+acls:
+  # Permitir todo el tráfico entre servicios
+  - action: accept
+    src:
+      - group:services
+    dst:
+      - group:services:*
+  
+  # Permitir acceso de servicios a endpoints
+  - action: accept
+    src:
+      - group:services
+    dst:
+      - group:endpoints:*
+  
+  # Permitir admins a todo
+  - action: accept
+    src:
+      - group:admin
+    dst:
+      - "*:*"
+  
+  # Guacamole puede acceder a TSPlus
+  - action: accept
+    src:
+      - guacamole.hs.kappa4.com
+    dst:
+      - tsplus:3389
+      - tsplus:80
+      - tsplus:443
+  
+  # Authentik puede acceder a LDAP
+  - action: accept
+    src:
+      - authentik.hs.kappa4.com
+    dst:
+      - ldap:389
+      - ldap:636
+  
+  # Servicios pueden acceder a PostgreSQL
+  - action: accept
+    src:
+      - authentik.hs.kappa4.com
+      - guacamole.hs.kappa4.com
+    dst:
+      - postgres:5432
+
+# SSH rules (opcional)
+ssh:
+  - action: accept
+    src:
+      - group:admin
+    dst:
+      - group:services
+      - group:endpoints
+    users:
+      - root
+      - autogroup:member
+
+# TagOwners (opcional)
+tagOwners:
+  tag:service:
+    - admin@hs.kappa4.com
+  tag:endpoint:
+    - admin@hs.kappa4.com

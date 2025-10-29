@@ -1,0 +1,111 @@
+# Headscale Configuration for Pre-Produccion
+# Domain: hs.kappa4.com
+# Network: Perimeter network for all services
+
+server_url: https://hs.kappa4.com
+listen_addr: 0.0.0.0:8080
+metrics_listen_addr: 0.0.0.0:9090
+grpc_listen_addr: 0.0.0.0:50443
+
+# Private key paths
+private_key_path: /etc/headscale/private.key
+noise:
+  private_key_path: /etc/headscale/noise_private.key
+
+# IP Prefixes para la red Headscale
+ip_prefixes:
+  - fd7a:115c:a1e0::/48
+  - 100.64.0.0/10
+
+# DERP (relay) configuration
+derp:
+  server:
+    enabled: false
+    region_id: 999
+    region_code: "headscale"
+    region_name: "Headscale Embedded DERP"
+    stun_listen_addr: "0.0.0.0:3478"
+
+  urls:
+    - https://controlplane.tailscale.com/derpmap/default
+
+  paths: []
+
+  auto_update_enabled: true
+  update_frequency: 24h
+
+# Disable check for updates
+disable_check_updates: false
+
+# Ephemeral nodes
+ephemeral_node_inactivity_timeout: 30m
+
+# Node update check interval
+node_update_check_interval: 10s
+
+# Database
+db_type: sqlite3
+db_path: /var/lib/headscale/db.sqlite
+
+# TLS
+tls_cert_path: ""
+tls_key_path: ""
+
+# Access Control List
+acl_policy_path: ""
+
+# DNS Configuration - MagicDNS
+dns_config:
+  override_local_dns: true
+  nameservers:
+    - 1.1.1.1
+    - 8.8.8.8
+  
+  # MagicDNS settings
+  magic_dns: true
+  base_domain: hs.kappa4.com
+  
+  # Domains to route through Headscale
+  domains:
+    - gate.kappa4.com
+    - hs.kappa4.com
+  
+  # Extra DNS records
+  extra_records:
+    - name: authentik.hs.kappa4.com
+      type: A
+      value: 100.64.0.10
+    - name: ldap.hs.kappa4.com
+      type: A
+      value: 100.64.0.11
+    - name: guacamole.hs.kappa4.com
+      type: A
+      value: 100.64.0.12
+    - name: postgres.hs.kappa4.com
+      type: A
+      value: 100.64.0.13
+    - name: tsplus.hs.kappa4.com
+      type: A
+      value: 201.151.150.226
+
+# Log
+log:
+  format: text
+  level: info
+
+# Policy mode
+policy:
+  mode: file
+  path: /etc/headscale/acl.yaml
+
+# Unix socket
+unix_socket: /var/run/headscale/headscale.sock
+unix_socket_permission: "0770"
+
+# Tuning
+tuning:
+  # Batch SQLite writes to improve performance
+  batch_change_delay: 800ms
+  
+  # Map response update check frequency
+  node_mapsession_changed_buffer_size: 30
