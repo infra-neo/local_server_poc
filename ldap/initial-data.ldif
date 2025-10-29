@@ -1,0 +1,170 @@
+# =============================================================================
+# Kolaboree NG - OpenLDAP Initial Data Structure
+# =============================================================================
+# Este archivo contiene la estructura inicial de usuarios y grupos para LDAP
+# Ejecutar con: ldapadd -x -D "cn=admin,dc=kolaboree,dc=local" -W -f ldap-initial-data.ldif
+
+# =============================================================================
+# Unidades Organizacionales (OUs)
+# =============================================================================
+
+# OU para usuarios
+dn: ou=users,dc=kolaboree,dc=local
+objectClass: organizationalUnit
+ou: users
+description: Usuarios del sistema Kolaboree
+
+# OU para grupos
+dn: ou=groups,dc=kolaboree,dc=local
+objectClass: organizationalUnit
+ou: groups
+description: Grupos del sistema Kolaboree
+
+# =============================================================================
+# Grupos
+# =============================================================================
+
+# Grupo: users (usuarios regulares)
+dn: cn=users,ou=groups,dc=kolaboree,dc=local
+objectClass: groupOfNames
+cn: users
+description: Usuarios regulares del sistema
+member: uid=usuario1,ou=users,dc=kolaboree,dc=local
+member: uid=usuario2,ou=users,dc=kolaboree,dc=local
+
+# Grupo: admintecnico (administradores técnicos)
+dn: cn=admintecnico,ou=groups,dc=kolaboree,dc=local
+objectClass: groupOfNames
+cn: admintecnico
+description: Administradores técnicos del sistema
+member: uid=tecnico1,ou=users,dc=kolaboree,dc=local
+member: uid=tecnico2,ou=users,dc=kolaboree,dc=local
+
+# Grupo: globaladmin (administradores globales)
+dn: cn=globaladmin,ou=groups,dc=kolaboree,dc=local
+objectClass: groupOfNames
+cn: globaladmin
+description: Administradores globales del sistema
+member: uid=infra,ou=users,dc=kolaboree,dc=local
+
+# =============================================================================
+# Usuarios del Grupo "users"
+# =============================================================================
+
+# Usuario 1 - Grupo users
+dn: uid=usuario1,ou=users,dc=kolaboree,dc=local
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: usuario1
+cn: Usuario Uno
+sn: Uno
+givenName: Usuario
+displayName: Usuario Uno
+mail: usuario1@neogenesys.com
+uidNumber: 2001
+gidNumber: 2001
+homeDirectory: /home/usuario1
+loginShell: /bin/bash
+userPassword: {SSHA}n0LOLedVHZVr4XRkG9uFsJ5tYz0ZlY+b
+
+# Usuario 2 - Grupo users
+dn: uid=usuario2,ou=users,dc=kolaboree,dc=local
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: usuario2
+cn: Usuario Dos
+sn: Dos
+givenName: Usuario
+displayName: Usuario Dos
+mail: usuario2@neogenesys.com
+uidNumber: 2002
+gidNumber: 2001
+homeDirectory: /home/usuario2
+loginShell: /bin/bash
+userPassword: {SSHA}n0LOLedVHZVr4XRkG9uFsJ5tYz0ZlY+b
+
+# =============================================================================
+# Usuarios del Grupo "admintecnico"
+# =============================================================================
+
+# Técnico 1 - Grupo admintecnico
+dn: uid=tecnico1,ou=users,dc=kolaboree,dc=local
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: tecnico1
+cn: Técnico Uno
+sn: Uno
+givenName: Técnico
+displayName: Técnico Uno
+mail: tecnico1@neogenesys.com
+uidNumber: 3001
+gidNumber: 3001
+homeDirectory: /home/tecnico1
+loginShell: /bin/bash
+userPassword: {SSHA}7c6NXOSJNqWE4O9bVEf7zJ8tYz0ZlY+c
+
+# Técnico 2 - Grupo admintecnico
+dn: uid=tecnico2,ou=users,dc=kolaboree,dc=local
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: tecnico2
+cn: Técnico Dos
+sn: Dos
+givenName: Técnico
+displayName: Técnico Dos
+mail: tecnico2@neogenesys.com
+uidNumber: 3002
+gidNumber: 3001
+homeDirectory: /home/tecnico2
+loginShell: /bin/bash
+userPassword: {SSHA}7c6NXOSJNqWE4O9bVEf7zJ8tYz0ZlY+c
+
+# =============================================================================
+# Administrador Global
+# =============================================================================
+
+# Administrador Global - infra@neogenesys.com
+dn: uid=infra,ou=users,dc=kolaboree,dc=local
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: infra
+cn: Infra Administrator
+sn: Administrator
+givenName: Infra
+displayName: Infra Administrator
+mail: infra@neogenesys.com
+uidNumber: 1001
+gidNumber: 1001
+homeDirectory: /home/infra
+loginShell: /bin/bash
+userPassword: {SSHA}K9fXrVKzY7NkW1O8QE5zJ5tYz0ZlY+d
+
+# =============================================================================
+# Grupos POSIX (para compatibilidad del sistema)
+# =============================================================================
+
+# Grupo POSIX para usuarios regulares
+dn: cn=usergroup,ou=groups,dc=kolaboree,dc=local
+objectClass: posixGroup
+cn: usergroup
+gidNumber: 2001
+description: Grupo POSIX para usuarios regulares
+
+# Grupo POSIX para técnicos
+dn: cn=techgroup,ou=groups,dc=kolaboree,dc=local
+objectClass: posixGroup
+cn: techgroup
+gidNumber: 3001
+description: Grupo POSIX para técnicos
+
+# Grupo POSIX para administradores
+dn: cn=admingroup,ou=groups,dc=kolaboree,dc=local
+objectClass: posixGroup
+cn: admingroup
+gidNumber: 1001
+description: Grupo POSIX para administradores globales

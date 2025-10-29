@@ -4,3 +4,18 @@ backup-*/
 *.tmp
 **/__pycache__/
 *.pyc
+
+# Pre-produccion: excluir backend y frontend
+backend/
+frontend/
+
+# Environment files
+.env
+
+# SSL certificates (deben ser configurados por el usuario)
+nginx/ssl/**/*.pem
+nginx/ssl/**/*.key
+
+# Headscale data (generado en runtime)
+headscale/private.key
+headscale/noise_private.key
